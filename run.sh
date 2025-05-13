@@ -1,11 +1,10 @@
 #!/bin/bash
 ## magic reset/testing uncomment 
 #rm -rf alpinestein_mnt
-
+#rm -rf alpinestein
 ## check if the alpinestein directory exists, if it does, we skip 3mb install.
 chmod +x ./utils/install.sh
 ./utils/install.sh
-
 ## constants for directories and files
 ALPF_DIR=alpinestein
 ROOT_DIR="$ALPF_DIR/root"
@@ -25,12 +24,6 @@ EOF
 
 ## copy DNS resolver configuration from host
 cp /etc/resolv.conf $ALPF_DIR/etc/resolv.conf
-
-## create a symlink for apk so that we can access it directly. 
-## we also need it to be conditional because symlinks persist
-if [ ! -L $ALPF_DIR/bin/apk ]; then
-  ln -s /sbin/apk alpinestein/bin/apk
-fi
 
 # make exec + mount
 chmod +x ./utils/mount.sh
