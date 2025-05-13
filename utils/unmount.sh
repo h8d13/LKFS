@@ -1,5 +1,5 @@
 #!/bin/bash
-# ecommon/unmount.sh
+#HL#utils/unmount.sh#
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
