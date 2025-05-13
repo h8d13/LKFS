@@ -9,6 +9,6 @@
 
 Coolest part of this project: Initial download is 3.3mb.
 
-Extracted is ~< 10mb
+Extracted is < ~10mb
 
 Then the limit is your imagination as always. 
