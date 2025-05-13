@@ -4,6 +4,7 @@
 #rm -rf alpinestein_mnt
 #rm -rf alpinestein
 ## check if the alpinestein directory exists, if it does, we skip 3mb install.
+## keep in mind that everything is relative to this script.
 chmod +x ./utils/install.sh
 ./utils/install.sh
 
@@ -11,17 +12,13 @@ chmod +x ./utils/install.sh
 ALPF_DIR=alpinestein
 ROOT_DIR="$ALPF_DIR/root"
 PRO_D_DIR="$ALPF_DIR/etc/profile.d"
+MODS_DIR="assets/mods"
 
+# configure the profile from conf
 cp assets/config.conf "$ROOT_DIR/.ashrc"
-
 ## Set the ENV variable in .profile to ensure .ashrc is sourced if exist
-cat << EOF > "$ROOT_DIR/.profile"
-# Source .ashrc to load custom environment and prompt
-export ENV=\$HOME/.ashrc
-if [ -f \$ENV ]; then
-  source \$ENV
-fi
-EOF
+chmod +x ./utils/create_profile.sh
+./utils/create_profile.sh "$ROOT_DIR"
 
 ## Copy DNS resolver configuration from host
 cp /etc/resolv.conf $ALPF_DIR/etc/resolv.conf
@@ -34,19 +31,10 @@ chmod +x ./utils/mount.sh
 cat assets/issue.ceauron > "$PRO_D_DIR/logo.sh"
 chmod +x "$PRO_D_DIR/logo.sh"
 
-## create custom welcome message
-cat > "$PRO_D_DIR/welcome.sh" << EOF
-echo -e '\e[1;31mWelcome to Alpinestein.\e[0m'
-echo -e "Kernel \e[1;31m\$(uname -r)\e[0m on an \e[1;31m\$(uname -m)\e[0m (\e[1;31m\$(uname -n)\e[0m)"
-EOF
+cp "$MODS_DIR/welcome.sh" "$PRO_D_DIR/welcome.sh"
 chmod +x "$PRO_D_DIR/welcome.sh"
 
-## create version script
-cat > "$PRO_D_DIR/version.sh" << EOF
-#!/bin/sh
-version=\$(cat /etc/os-release | grep VERSION_ID | cut -d'=' -f2 | tr -d '"')
-echo -e "\e[1;31m\$version\e[0m"
-EOF
+cp "$MODS_DIR/version.sh" "$PRO_D_DIR/version.sh"
 chmod +x "$PRO_D_DIR/version.sh"
 
 ## source and spawn a shell (as login -l)
