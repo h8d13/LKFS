@@ -35,5 +35,5 @@ chroot $ALPF_DIR /bin/sh -c "source /root/.profile; exec /bin/sh -l"
 chmod +x ./utils/unmount.sh
 ./utils/unmount.sh
 ##dev util needs "tree" pkg
-chmod +x tree.sh 
-./utils/tree.sh
+#chmod +x ./utils/tree.sh 
+#./utils/tree.sh
