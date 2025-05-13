@@ -30,9 +30,9 @@ chmod +x run.sh
 ./run.sh
 ```
 
-You can also just use it like a normal Alpine install `apk add micro-tetris`
+You can then just use it like a normal Alpine install `apk add micro-tetris`
 
-(You can add `-vvv` to see exactly where the 14kb of Tetris are going) 
+(You can add `-vvv` if you want to see exactly where the 14kb of Tetris are going) 
 
 [1989 Tetris Obf](https://tromp.github.io/tetris.html) 
 
