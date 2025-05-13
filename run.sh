@@ -1,4 +1,7 @@
 #!/bin/bash
+## magic reset/testing uncomment 
+#rm -rf alpinestein_mnt
+## check if the alpinestein directory exists
 
 ## Constants for directories and files
 ALPF_DIR=alpinestein
