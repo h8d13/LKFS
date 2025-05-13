@@ -21,6 +21,17 @@ Which makes it so that the host doesn't have any form of access to the files of 
 
 ---- 
 
+## Configure
+
+Download the repo. 
+
+
+```
+chmod +x run.sh
+./run.sh
+```
+
+
 You can also just use it like a normal Alpine install `apk add micro-tetris`
 
 Then `tetris`
