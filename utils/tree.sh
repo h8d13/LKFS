@@ -56,3 +56,7 @@ display_hl_tree() {
 
 # Call the function
 display_hl_tree
+
+##dev util needs "tree" pkg
+#chmod +x ./utils/tree.sh 
+#./utils/tree.sh
