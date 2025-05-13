@@ -1,4 +1,5 @@
 #!/bin/bash
+#HL#run.sh#
 ## magic reset/testing uncomment 
 #rm -rf alpinestein_mnt
 #rm -rf alpinestein

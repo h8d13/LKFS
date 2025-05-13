@@ -1,13 +1,13 @@
 # LKFS
 ----
 
-## Alpine Chroot 👻 
+## Alpine-Mini Chroot 👻 
 
 > Prereqs: Be on a linux system with tar, wget, bash
 
 ----
 
-Coolest part of this project: Initial download is 3.3mb.
+Coolest part of this project: Initial auto download is **3.3mb.**
 
 Extracted is < ~10mb
 
