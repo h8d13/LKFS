@@ -4,42 +4,34 @@
 #rm -rf alpinestein_mnt
 #rm -rf alpinestein
 ## check if the alpinestein directory exists, if it does, we skip 3mb install.
-## keep in mind that everything is relative to this script.
 chmod +x ./utils/install.sh
 ./utils/install.sh
-
+#### keep in mind that everything is relative to this script.
 ## constants for directories and files
 ALPF_DIR=alpinestein
 ROOT_DIR="$ALPF_DIR/root"
 PRO_D_DIR="$ALPF_DIR/etc/profile.d"
 MODS_DIR="assets/mods"
-
+# all paths are here so that you can change structure if needed.
 # configure the profile from conf
 cp assets/config.conf "$ROOT_DIR/.ashrc"
 ## Set the ENV variable in .profile to ensure .ashrc is sourced if exist
 chmod +x ./utils/create_profile.sh
 ./utils/create_profile.sh "$ROOT_DIR"
-
 ## Copy DNS resolver configuration from host
 cp /etc/resolv.conf $ALPF_DIR/etc/resolv.conf
-
 # make exec + mount
 chmod +x ./utils/mount.sh
 ./utils/mount.sh
-
-#### wrapper done. example features.
+#### wrapper done. example features:
 cat assets/issue.ceauron > "$PRO_D_DIR/logo.sh"
 chmod +x "$PRO_D_DIR/logo.sh"
-
 cp "$MODS_DIR/welcome.sh" "$PRO_D_DIR/welcome.sh"
 chmod +x "$PRO_D_DIR/welcome.sh"
-
 cp "$MODS_DIR/version.sh" "$PRO_D_DIR/version.sh"
 chmod +x "$PRO_D_DIR/version.sh"
-
 ## source and spawn a shell (as login -l)
-chroot $ALPF_DIR /bin/ash -c "source /root/.profile; exec /bin/ash -l"
-
+chroot $ALPF_DIR /bin/sh -c "source /root/.profile; exec /bin/sh -l"
 #### cleanup
 ## make exec + Unmount
 chmod +x ./utils/unmount.sh
