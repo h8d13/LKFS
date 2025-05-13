@@ -9,7 +9,7 @@
 
 Coolest part of this project: Initial auto download is **3.3mb.**
 
-Extracted is < ~10mb
+Extracted is < ~10mb, end goal being a kind of TUI-os.
 
 Then the limit is your imagination as always. 
 
