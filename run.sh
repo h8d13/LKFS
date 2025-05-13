@@ -5,6 +5,7 @@
 ## check if the alpinestein directory exists, if it does, we skip 3mb install.
 chmod +x ./utils/install.sh
 ./utils/install.sh
+
 ## constants for directories and files
 ALPF_DIR=alpinestein
 ROOT_DIR="$ALPF_DIR/root"
@@ -12,17 +13,25 @@ PRO_D_DIR="$ALPF_DIR/etc/profile.d"
 
 ## ash dash stuff path aliases
 cat << EOF > "$ROOT_DIR/.ashrc"
+# Custom PS1 prompt for ash shell
+export PS1='\033[0;34m┌──[\033[0;36m\t\033[0;34m]─[\033[0;39m\u\033[0;34m@\033[0;36m\h\033[0;34m]─[\033[0;32m\w\033[0;34m]\n\033[0;34m└──╼ \033[0;36m$ \033[0m'
+
+# Useful aliases and environment setup
 export PATH="/bin:\$PATH"
 alias ll="ls -la"
 alias apkli="apk list --installed | grep"
 EOF
 
-## set the ENV variable in .profile
+## Set the ENV variable in .profile to ensure .ashrc is sourced if exist
 cat << EOF > "$ROOT_DIR/.profile"
+# Source .ashrc to load custom environment and prompt
 export ENV=\$HOME/.ashrc
+if [ -f \$ENV ]; then
+  source \$ENV
+fi
 EOF
 
-## copy DNS resolver configuration from host
+## Copy DNS resolver configuration from host
 cp /etc/resolv.conf $ALPF_DIR/etc/resolv.conf
 
 # make exec + mount
