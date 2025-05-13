@@ -1,6 +1,6 @@
 #!/bin/bash
 #HL#run.sh#
-#rm -rf alpinestein_mnt && rm -rf alpinestein  ## magic reset/testing uncomment
+#rm -rf alpinestein_mnt && rm -rf alpinestein  #reset/testing uncomment
 #### everything is relative to this script
 ALPF_DIR=alpinestein
 ROOT_DIR="$ALPF_DIR/root"
@@ -16,10 +16,10 @@ chmod +x ./assets/profile.sh
 ./assets/profile.sh "$ROOT_DIR"
 ## copy DNS resolver configuration from host
 cp /etc/resolv.conf $ALPF_DIR/etc/resolv.conf
-# make exec + mount
+####### 1 ######
 chmod +x ./utils/mount.sh
 ./utils/mount.sh
-#### wrapper done. example features:
+####### do stuff ######
 cat assets/issue.ceauron > "$PRO_D_DIR/logo.sh"
 chmod +x "$PRO_D_DIR/logo.sh"
 cp "$MODS_DIR/welcome.sh" "$PRO_D_DIR/welcome.sh"
@@ -28,7 +28,7 @@ cp "$MODS_DIR/version.sh" "$PRO_D_DIR/version.sh"
 chmod +x "$PRO_D_DIR/version.sh"
 ## source and spawn a shell (as login -l)
 chroot $ALPF_DIR /bin/sh -c "source /root/.profile; exec /bin/sh -l"
-#### cleanup make exec + unmount
+####### 2 ######
 chmod +x ./utils/unmount.sh
 ./utils/unmount.sh
 
