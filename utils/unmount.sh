@@ -25,5 +25,8 @@ fi
 if mountpoint -q "$MNT_DIR/dev"; then
   umount "$MNT_DIR/dev" || true
 fi
+if mountpoint -q "$MNT_DIR/dev"; then
+  umount "$MNT_DIR/dev/pts" || true
+fi
 echo "[-] Unmounting complete within namespace."
 EOF

@@ -9,16 +9,19 @@ echo "[+] Creating mnt namespace"
 mkdir -p "$MNT_DIR"
 echo "[+] Mounting VFS into $MNT_DIR..."
 mkdir -p "$MNT_DIR/dev"
+mkdir -p "$MNT_DIR/dev/pts"
 mkdir -p "$MNT_DIR/proc"
 mkdir -p "$MNT_DIR/sys"
 mkdir -p "$MNT_DIR/run"
 mkdir -p "$MNT_DIR/tmp"
 mkdir -p "$MNT_DIR/var"
+
 echo "[+] Unsharing mount namespace"
 # Use unshare to isolate the environment and mount the necessary directories
 unshare --mount --fork bash <<EOF
 echo "[+] Inside unshare environment"
 # Bind mount necessary directories
+mount --bind /dev/pts "$CHROOT_DIR/dev/pts" 2>/dev/null || { echo "Failed to mount /dev/pts"; exit 1; }
 mount --bind /dev "$MNT_DIR/dev" || { echo "Failed to mount /dev"; exit 1; }
 mount -t proc proc "$MNT_DIR/proc" || { echo "Failed to mount /proc"; exit 1; }
 mount -t sysfs sys "$MNT_DIR/sys" || { echo "Failed to mount /sys"; exit 1; }
