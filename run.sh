@@ -1,5 +1,5 @@
 #!/bin/bash
-## magic reset uncomment 
+## magic reset/testing uncomment 
 #rm -rf alpinestein
 ## check if the alpinestein directory exists
 if [ ! -d "alpinestein" ]; then
@@ -10,8 +10,7 @@ if [ ! -d "alpinestein" ]; then
 else
     echo "Skipping download and extraction."
 fi
-
-## ash dash stuff
+## ash dash stuff path aliases
 cat << EOF > alpinestein/root/.ashrc
 export PATH="/bin:\$PATH"
 alias ll="ls -la"
@@ -23,17 +22,14 @@ cat << EOF > alpinestein/root/.profile
 export ENV=\$HOME/.ashrc
 EOF
 
-## create the etc directory in the Alpine environment
-mkdir -p alpinestein/etc
-
 ## copy the DNS resolver configuration from host to mfs
 cp /etc/resolv.conf alpinestein/etc/resolv.conf
 
 ## create a symlink for apk so that we can access it directly. 
-## we also need it to be conditional
+## we also need it to be conditional bcs symlinks persist
 if [ ! -L alpinestein/bin/apk ]; then
   ln -s /sbin/apk alpinestein/bin/apk
 fi
 
-## now start a shell using chroot
+## source and spawn a shell
 chroot alpinestein /bin/ash -c "source /root/.profile; exec /bin/ash"
