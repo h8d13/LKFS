@@ -17,8 +17,9 @@ class Colors:
 
 # Paths and files to check based on the bash script
 CHECKS = {
-    "alpinestein_mnt": {"description": "Directory alpinestein_mnt should not exist", "type": "dir"},
+    "alpinestein_mnt": {"description": "Directory alpinestein_mnt should exist", "type": "dir"},
     "alpinestein": {"description": "Directory alpinestein should exist", "type": "dir"},
+    ## not really ^ initially don't exist
     "alpinestein/root/.ashrc": {"description": "File .ashrc should be copied to root directory", "type": "file"},
     "assets/config.conf": {"description": "File config.conf should exist in assets directory", "type": "file"},
     "assets/profile.sh": {"description": "File profile.sh should exist and be executable", "type": "exec"},
@@ -137,11 +138,10 @@ def print_results(results, verbose=False):
 def main():
     parser = argparse.ArgumentParser(description='AlpineStein Project Test Script')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose output')
-    parser.add_argument('-d', '--directory', type=str, help='Specify project root directory')
     args = parser.parse_args()
     
     # Run the tests
-    root_dir = args.directory if args.directory else None
+    root_dir = None
     results = test_paths(root_dir, args.verbose)
     print_results(results, args.verbose)
     
