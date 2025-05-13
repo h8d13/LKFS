@@ -35,8 +35,23 @@ fi
 chmod +x ./utils/mount.sh
 ./utils/mount.sh
 
-## source and spawn a shell
-chroot alpinestein /bin/ash -c "source /root/.profile; exec /bin/ash"
+## Example features can go to local.d or profile.d
+## The former being services and latter being login scripts. 
+
+## Example features: Create a custom welcome message script for login shells in /etc/profile.d/
+cat > alpinestein/etc/profile.d/welcome.sh << EOF
+echo -e '\e[1;31mWelcome to Alpinestein.\e[0m'
+EOF
+chmod +x alpinestein/etc/profile.d/welcome.sh
+
+cat > alpinestein/etc/profile.d/version.sh << EOF
+#!/bin/sh
+cat /etc/os-release | grep VERSION_ID | cut -d'=' -f2 | tr -d '"'
+EOF
+chmod +x alpinestein/etc/profile.d/version.sh
+
+## source and spawn a shell (as login -l)
+chroot alpinestein /bin/ash -c "source /root/.profile; exec /bin/ash -l"
 
 # Make exec + Unmount
 chmod +x ./utils/unmount.sh

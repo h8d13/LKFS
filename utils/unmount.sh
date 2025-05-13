@@ -5,7 +5,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 MNT_DIR="$SCRIPT_DIR/../alpinestein_mnt"  # Path to the mount directory
 
-echo "[-] Unmounting virtual filesystems from $MNT_DIR..."
+echo "[-] Unmounting VFS from $MNT_DIR..."
 
 # Unshare the mount namespace for unmounting (in the same context)
 unshare --mount --fork bash <<EOF
