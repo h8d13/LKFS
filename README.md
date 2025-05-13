@@ -16,6 +16,6 @@ Then the limit is your imagination as always.
 ---- 
 
 Second part is more of technical Linux feature: using `unshare --mount --fork` 
-Which makes it so that the host doesn't have any form of access to the files of Alpinestein. 
+Which makes it so that the host doesn't have any form of access to the files of Alpinestein. Or tiny hill?  
 
 ---- 

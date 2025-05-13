@@ -1,5 +1,5 @@
 #!/bin/sh
-#HL#utils/create_profile.sh#
+#HL#assets/profile.sh#
 ROOT_DIR="$1"
 # Create .profile in the ROOT_DIR
 cat << EOF > "$ROOT_DIR/.profile"
