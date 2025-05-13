@@ -10,3 +10,4 @@ if [ ! -d "$ALPF_DIR" ]; then
 else
     echo "Skipping download and extraction."
 fi
+# or skip
