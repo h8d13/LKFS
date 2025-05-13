@@ -17,7 +17,7 @@ display_hl_tree() {
     done
     
     if [ ! -s "$temp_file" ]; then
-        echo "No files with #HL# tags found."
+        echo "[-] No files with #HL# tags found."
         rm "$temp_file"
         return 1
     fi
