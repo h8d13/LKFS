@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #HL#assets/profile.sh#
 ROOT_DIR="$1"
 # Create .profile in the ROOT_DIR

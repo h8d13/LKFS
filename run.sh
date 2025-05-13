@@ -1,9 +1,7 @@
 #!/bin/bash
 #HL#run.sh#
-## magic reset/testing uncomment 
-#rm -rf alpinestein_mnt && rm -rf alpinestein
-#### keep in mind that everything is relative to this script
-## constants for directories and files
+#rm -rf alpinestein_mnt && rm -rf alpinestein  ## magic reset/testing uncomment
+#### everything is relative to this script
 ALPF_DIR=alpinestein
 ROOT_DIR="$ALPF_DIR/root"
 PRO_D_DIR="$ALPF_DIR/etc/profile.d"
@@ -33,6 +31,4 @@ chroot $ALPF_DIR /bin/sh -c "source /root/.profile; exec /bin/sh -l"
 #### cleanup make exec + unmount
 chmod +x ./utils/unmount.sh
 ./utils/unmount.sh
-##dev util needs "tree" pkg
-#chmod +x ./utils/tree.sh 
-#./utils/tree.sh
+

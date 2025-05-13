@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #HL#utils/install.sh#
 ALPF_DIR=$1
 ## check if $ALPF_DIR directory exists
