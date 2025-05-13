@@ -1,5 +1,4 @@
 #!/bin/bash
-#HL#run.sh#
 #rm -rf alpinestein_mnt && rm -rf alpinestein  #reset/testing uncomment
 ALPF_DIR=alpinestein
 ROOT_DIR="$ALPF_DIR/root"
