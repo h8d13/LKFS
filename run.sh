@@ -1,7 +1,6 @@
 #!/bin/bash
 #HL#run.sh#
 #rm -rf alpinestein_mnt && rm -rf alpinestein  #reset/testing uncomment
-#### everything is relative to this script
 ALPF_DIR=alpinestein
 ROOT_DIR="$ALPF_DIR/root"
 PRO_D_DIR="$ALPF_DIR/etc/profile.d"
