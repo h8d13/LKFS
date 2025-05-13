@@ -25,7 +25,7 @@ cp "$MODS_DIR/welcome.sh" "$PRO_D_DIR/welcome.sh"
 chmod +x "$PRO_D_DIR/welcome.sh"
 cp "$MODS_DIR/version.sh" "$PRO_D_DIR/version.sh"
 chmod +x "$PRO_D_DIR/version.sh"
-## source and spawn a shell (as login -l)
+## source and spawn a shell (as login -l) ##
 chroot $ALPF_DIR /bin/sh -c "source /root/.profile; exec /bin/sh -l"
 ####### 2 ######
 chmod +x ./utils/unmount.sh
