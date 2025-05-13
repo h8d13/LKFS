@@ -1,8 +1,7 @@
 #!/bin/bash
 #HL#run.sh#
 ## magic reset/testing uncomment 
-#rm -rf alpinestein_mnt
-#rm -rf alpinestein
+#rm -rf alpinestein_mnt && rm -rf alpinestein
 #### keep in mind that everything is relative to this script
 ## constants for directories and files
 ALPF_DIR=alpinestein
