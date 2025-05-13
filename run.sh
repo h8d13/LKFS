@@ -1,6 +1,5 @@
-#!/bin/bash
 ## magic reset/testing uncomment 
-#rm -rf alpinestein
+#rm -rf alpinestein_mnt
 ## check if the alpinestein directory exists
 if [ ! -d "alpinestein" ]; then
     mkdir -p alpinestein
@@ -10,6 +9,7 @@ if [ ! -d "alpinestein" ]; then
 else
     echo "Skipping download and extraction."
 fi
+
 ## ash dash stuff path aliases
 cat << EOF > alpinestein/root/.ashrc
 export PATH="/bin:\$PATH"
@@ -26,10 +26,18 @@ EOF
 cp /etc/resolv.conf alpinestein/etc/resolv.conf
 
 ## create a symlink for apk so that we can access it directly. 
-## we also need it to be conditional bcs symlinks persist
+## we also need it to be conditional because symlinks persist
 if [ ! -L alpinestein/bin/apk ]; then
   ln -s /sbin/apk alpinestein/bin/apk
 fi
 
+# Make exec + Mount
+chmod +x ./utils/mount.sh
+./utils/mount.sh
+
 ## source and spawn a shell
 chroot alpinestein /bin/ash -c "source /root/.profile; exec /bin/ash"
+
+# Make exec + Unmount
+chmod +x ./utils/unmount.sh
+./utils/unmount.sh
