@@ -1,7 +1,6 @@
 #!/bin/sh
 #HL#utils/install.sh#
-
-ALPF_DIR="alpinestein"
+ALPF_DIR=$1
 ## check if $ALPF_DIR directory exists
 if [ ! -d "$ALPF_DIR" ]; then
     mkdir -p $ALPF_DIR
