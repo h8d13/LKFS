@@ -30,7 +30,10 @@ mkdir -p alpinestein/etc
 cp /etc/resolv.conf alpinestein/etc/resolv.conf
 
 ## create a symlink for apk so that we can access it directly. 
-ln -s /sbin/apk alpinestein/bin/apk
+## we also need it to be conditional
+if [ ! -L alpinestein/bin/apk ]; then
+  ln -s /sbin/apk alpinestein/bin/apk
+fi
 
 ## now start a shell using chroot
 chroot alpinestein /bin/ash -c "source /root/.profile; exec /bin/ash"
