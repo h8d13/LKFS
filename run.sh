@@ -37,6 +37,8 @@ chmod +x ./utils/mount.sh
 ./utils/mount.sh
 
 #### wrapper done. example features.
+cat assets/issue.ceauron > "$PRO_D_DIR/logo.sh"
+chmod +x "$PRO_D_DIR/logo.sh"
 
 ## create custom welcome message
 cat > "$PRO_D_DIR/welcome.sh" << EOF
