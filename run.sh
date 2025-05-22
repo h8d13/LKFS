@@ -1,5 +1,5 @@
 #!/bin/bash
-rm -rf alpinestein  #reset/testing uncomment
+#rm -rf alpinestein  #reset/testing uncomment
 ALPF_DIR=alpinestein
 ROOT_DIR="$ALPF_DIR/root"
 PRO_D_DIR="$ALPF_DIR/etc/profile.d"
