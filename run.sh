@@ -1,5 +1,5 @@
 #!/bin/bash
-#rm -rf alpinestein_mnt && rm -rf alpinestein  #reset/testing uncomment
+rm -rf alpinestein_mnt && rm -rf alpinestein  #reset/testing uncomment
 ALPF_DIR=alpinestein
 ROOT_DIR="$ALPF_DIR/root"
 PRO_D_DIR="$ALPF_DIR/etc/profile.d"
@@ -22,4 +22,3 @@ cp "$MODS_DIR/version.sh" "$PRO_D_DIR/version.sh" && chmod +x "$PRO_D_DIR/versio
 chroot $ALPF_DIR /bin/sh -c ". /root/.profile; exec /bin/sh -l"
 ####### 2 ######
 chmod +x ./utils/unmount.sh && ./utils/unmount.sh
-
