@@ -1,32 +1,35 @@
 #!/bin/bash
 #HL#utils/unmount.sh#
 set -e
+
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-MNT_DIR="$SCRIPT_DIR/../alpinestein_mnt"  # Path to the mount directory
-echo "[-] Unmounting VFS from $MNT_DIR..."
-# unshare the mount namespace for unmounting
+CHROOT="$SCRIPT_DIR/../alpinestein"  # Match the actual chroot directory
+
+echo "[-] Unmounting VFS from $CHROOT..."
+
+# Unshare the mount namespace for unmounting
 unshare --mount --fork bash <<EOF
-# Check if mounts are active and unmount them uno a uno
-if mountpoint -q "$MNT_DIR/var"; then
-  umount "$MNT_DIR/var" || { echo "Failed to unmount /var"; exit 1; }
+echo "[-] Unshare env - unmounting from $CHROOT"
+
+# Check if mounts are active and unmount them in reverse order
+if mountpoint -q "$CHROOT/tmp"; then
+  umount "$CHROOT/tmp" || echo "Warning: Failed to unmount /tmp"
 fi
-if mountpoint -q "$MNT_DIR/tmp"; then
-  umount "$MNT_DIR/tmp" || true
+if mountpoint -q "$CHROOT/run"; then
+  umount "$CHROOT/run" || echo "Warning: Failed to unmount /run"
 fi
-if mountpoint -q "$MNT_DIR/run"; then
-  umount "$MNT_DIR/run" || true
+if mountpoint -q "$CHROOT/sys"; then
+  umount "$CHROOT/sys" || echo "Warning: Failed to unmount /sys"
 fi
-if mountpoint -q "$MNT_DIR/sys"; then
-  umount "$MNT_DIR/sys" || true
+if mountpoint -q "$CHROOT/proc"; then
+  umount "$CHROOT/proc" || echo "Warning: Failed to unmount /proc"
 fi
-if mountpoint -q "$MNT_DIR/proc"; then
-  umount "$MNT_DIR/proc" || true
+if mountpoint -q "$CHROOT/dev/pts"; then
+  umount "$CHROOT/dev/pts" || echo "Warning: Failed to unmount /dev/pts"
 fi
-if mountpoint -q "$MNT_DIR/dev"; then
-  umount "$MNT_DIR/dev" || true
+if mountpoint -q "$CHROOT/dev"; then
+  umount "$CHROOT/dev" || echo "Warning: Failed to unmount /dev"
 fi
-if mountpoint -q "$MNT_DIR/dev"; then
-  umount "$MNT_DIR/dev/pts" || true
-fi
+
 echo "[-] Unmounting complete within namespace."
 EOF
