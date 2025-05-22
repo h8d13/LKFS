@@ -35,7 +35,7 @@ echo "[+] Mounting complete within namespace."
 echo "[+] Verifying mounts:"
 for mp in dev dev/pts proc sys run tmp; do
     if mountpoint -q "$CHROOT/\$mp" 2>/dev/null; then
-        echo "[✓] \$mp mounted successfully"
+        echo "[✓] \$mp mounted."
     else
         echo "[!] \$mp mount verification failed"
     fi
