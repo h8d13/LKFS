@@ -39,3 +39,6 @@ cp "$MODS_DIR/version.sh" "$PRO_D_DIR/version.sh" && chmod +x "$PRO_D_DIR/versio
 # Enter chroot
 echo "[+] Entering Alpine chroot environment..."
 chroot "$ALPF_DIR" /bin/sh -c ". /root/.profile; exec /bin/sh -l"
+
+# Clean up
+chmod +x ./utils/unmount.sh && ./utils/unmount.sh
