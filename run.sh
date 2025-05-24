@@ -20,10 +20,8 @@ if [ "$(id -u)" -ne 0 ]; then
     exit 1
 fi
 
-# Install Alpine if needed
+# Install Alpine if needed + dirs
 chmod +x ./utils/install.sh && ./utils/install.sh "$ALPF_DIR"
-
-# Ensure required directories exist
 mkdir -p "$ROOT_DIR"
 mkdir -p "$PRO_D_DIR"
 
@@ -40,7 +38,7 @@ cat assets/issue.ceauron > "$PRO_D_DIR/logo.sh" && chmod +x "$PRO_D_DIR/logo.sh"
 cp "$MODS_DIR/welcome.sh" "$PRO_D_DIR/welcome.sh" && chmod +x "$PRO_D_DIR/welcome.sh"
 cp "$MODS_DIR/version.sh" "$PRO_D_DIR/version.sh" && chmod +x "$PRO_D_DIR/version.sh"
 
-# Enter chroot
+# Enter chroot as login
 echo "[+] Entering Alpine chroot environment..."
 chroot "$ALPF_DIR" /bin/sh -c ". /root/.profile; exec /bin/sh -l"
 
