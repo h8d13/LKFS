@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -12,7 +12,6 @@ if [ ! -d "$CHROOT" ]; then
     exit 0
 fi
 
-# Unmount all filesystems under chroot (from alpine-chroot-install approach)
 if cat /proc/mounts | cut -d' ' -f2 | grep -q "^$CHROOT"; then
     cat /proc/mounts | cut -d' ' -f2 | grep "^$CHROOT" | sort -r | while read path; do
         echo "Unmounting $path" >&2

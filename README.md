@@ -24,8 +24,8 @@ Which makes it so that the host doesn't have any form of access to the files of 
 Download the repo and extract or `git clone https://github.com/h8d13/LKFS`
 
 ```
-chmod +x run.sh
-./run.sh
+sudo chmod +x run.sh
+sudo ./run.sh
 ```
 
 You can then just use it like a normal Alpine install `apk add micro-tetris`
