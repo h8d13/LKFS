@@ -1,5 +1,6 @@
 #!/bin/sh
 set -e
+rm -rf alpinestein
 
 ALPF_DIR="alpinestein"
 ROOT_DIR="$ALPF_DIR/root"
@@ -22,6 +23,10 @@ fi
 # Install Alpine if needed
 chmod +x ./utils/install.sh && ./utils/install.sh "$ALPF_DIR"
 
+# Ensure required directories exist
+mkdir -p "$ROOT_DIR"
+mkdir -p "$PRO_D_DIR"
+
 # Mount filesystems
 chmod +x ./utils/mount.sh && ./utils/mount.sh
 
@@ -31,7 +36,6 @@ chmod +x ./assets/profile.sh && ./assets/profile.sh "$ROOT_DIR"
 cp /etc/resolv.conf "$ALPF_DIR/etc/resolv.conf"
 
 # Setup profile scripts
-mkdir -p "$PRO_D_DIR"
 cat assets/issue.ceauron > "$PRO_D_DIR/logo.sh" && chmod +x "$PRO_D_DIR/logo.sh"
 cp "$MODS_DIR/welcome.sh" "$PRO_D_DIR/welcome.sh" && chmod +x "$PRO_D_DIR/welcome.sh"
 cp "$MODS_DIR/version.sh" "$PRO_D_DIR/version.sh" && chmod +x "$PRO_D_DIR/version.sh"
@@ -40,5 +44,4 @@ cp "$MODS_DIR/version.sh" "$PRO_D_DIR/version.sh" && chmod +x "$PRO_D_DIR/versio
 echo "[+] Entering Alpine chroot environment..."
 chroot "$ALPF_DIR" /bin/sh -c ". /root/.profile; exec /bin/sh -l"
 
-# Clean up
-chmod +x ./utils/unmount.sh && ./utils/unmount.sh
+# Do more stuff

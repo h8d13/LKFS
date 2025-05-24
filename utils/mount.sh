@@ -9,10 +9,19 @@ echo "[+] Mounting VFS into $CHROOT..."
 # Create necessary directories
 mkdir -p "$CHROOT"/{dev,dev/pts,proc,sys,run,tmp}
 
-mount -t proc none "$CHROOT/proc"
-mount --rbind /sys "$CHROOT/sys"
-mount --make-rprivate "$CHROOT/sys"
-mount --rbind /dev "$CHROOT/dev"
-mount --make-rprivate "$CHROOT/dev"
+# Check if already mounted to avoid double-mounting
+if ! mount | grep -q "$CHROOT/proc"; then
+    mount -t proc none "$CHROOT/proc"
+fi
+
+if ! mount | grep -q "$CHROOT/sys"; then
+    mount --rbind /sys "$CHROOT/sys"
+    mount --make-rprivate "$CHROOT/sys"
+fi
+
+if ! mount | grep -q "$CHROOT/dev"; then
+    mount --rbind /dev "$CHROOT/dev"
+    mount --make-rprivate "$CHROOT/dev"
+fi
 
 echo "[+] Mounting complete."
