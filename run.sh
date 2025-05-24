@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-rm -rf alpinestein
+#rm -rf alpinestein
 
 ALPF_DIR="alpinestein"
 ROOT_DIR="$ALPF_DIR/root"
