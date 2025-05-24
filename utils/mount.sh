@@ -24,7 +24,6 @@ if ! mount | grep -q "$CHROOT/dev"; then
     mount --make-rprivate "$CHROOT/dev"
 fi
 
-# Mount tmpfs for /tmp (performance and isolation)
 if ! mount | grep -q "$CHROOT/tmp"; then
     mount -t tmpfs tmpfs "$CHROOT/tmp"
 fi
