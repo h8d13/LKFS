@@ -1,35 +1,15 @@
 #!/bin/bash
-#HL#utils/unmount.sh#
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-CHROOT="$SCRIPT_DIR/../alpinestein"  # Match the actual chroot directory
+CHROOT="$SCRIPT_DIR/../alpinestein"
 
 echo "[-] Unmounting VFS from $CHROOT..."
 
-# Unshare the mount namespace for unmounting
-unshare --mount --fork bash <<EOF
-echo "[-] Unshare env - unmounting from $CHROOT"
+# Unmount all filesystems under chroot (from alpine-chroot-install approach)
+cat /proc/mounts | cut -d' ' -f2 | grep "^$CHROOT" | sort -r | while read path; do
+    echo "Unmounting $path" >&2
+    umount -fn "$path" 2>/dev/null || true
+done
 
-# Check if mounts are active and unmount them in reverse order
-if mountpoint -q "$CHROOT/tmp"; then
-  umount "$CHROOT/tmp" || echo "Warning: Failed to unmount /tmp"
-fi
-if mountpoint -q "$CHROOT/run"; then
-  umount "$CHROOT/run" || echo "Warning: Failed to unmount /run"
-fi
-if mountpoint -q "$CHROOT/sys"; then
-  umount "$CHROOT/sys" || echo "Warning: Failed to unmount /sys"
-fi
-if mountpoint -q "$CHROOT/proc"; then
-  umount "$CHROOT/proc" || echo "Warning: Failed to unmount /proc"
-fi
-if mountpoint -q "$CHROOT/dev/pts"; then
-  umount "$CHROOT/dev/pts" || echo "Warning: Failed to unmount /dev/pts"
-fi
-if mountpoint -q "$CHROOT/dev"; then
-  umount "$CHROOT/dev" || echo "Warning: Failed to unmount /dev"
-fi
-
-echo "[-] Unmounting complete within namespace."
-EOF
+echo "[-] Unmounting complete."
