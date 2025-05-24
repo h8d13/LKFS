@@ -6,6 +6,6 @@ cat << EOF > "$ROOT_DIR/.profile"
 # Source .ashrc to load custom environment and prompt
 export ENV=\$HOME/.ashrc
 if [ -f \$ENV ]; then
-  source \$ENV
+  . \$ENV
 fi
 EOF
