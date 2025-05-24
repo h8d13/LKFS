@@ -4,7 +4,7 @@ if [ "$(id -u)" -ne 0 ]; then
     echo "This script must be run as root!"
     exit 1
 fi
-set -e
+## Magic reset if needed uncomment
 #rm -rf alpinestein
 ALPF_DIR="alpinestein"
 ROOT_DIR="$ALPF_DIR/root"
