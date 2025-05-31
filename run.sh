@@ -16,7 +16,7 @@ cleanup() {
     chmod +x ./utils/unmount.sh && ./utils/unmount.sh
 }
 trap cleanup EXIT
-# Install Alpine if needed + dirs
+# Install Alpine (3.22) if needed + dirs 
 chmod +x ./utils/install.sh && ./utils/install.sh "$ALPF_DIR"
 mkdir -p "$ROOT_DIR"
 mkdir -p "$PRO_D_DIR"
