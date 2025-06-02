@@ -6,7 +6,8 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 ALPF_DIR="alpinestein"
-
+# Magic reset/update line
+#rm -rf alpinestein
 # Install Alpine if needed
 chmod +x ./utils/install.sh && ./utils/install.sh "$ALPF_DIR"
 mkdir -p "$ALPF_DIR/root" "$ALPF_DIR/etc/profile.d"

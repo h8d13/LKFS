@@ -15,15 +15,20 @@ fi
 # Get absolute path
 CHROOT_ABS=$(readlink -f "$CHROOT" 2>/dev/null || echo "$CHROOT")
 
-# Function to safely unmount
+# Function to safely unmount with detailed output
 safe_unmount() {
     local path="$1"
     if mountpoint -q "$path" 2>/dev/null; then
-        echo "[-] Unmounting $path"
-        if ! umount "$path" 2>/dev/null; then
-            # Try lazy unmount as fallback
-            umount -l "$path" 2>/dev/null || true
+        echo "[-] Unmounting: $path"
+        if umount "$path" 2>/dev/null; then
+            echo "[-] ✓ Successfully unmounted $path"
+        elif umount -l "$path" 2>/dev/null; then
+            echo "[-] ✓ Lazy unmounted $path"
+        else
+            echo "[-] ✗ Failed to unmount $path"
         fi
+    else
+        echo "[-] Not mounted: $path (skipping)"
     fi
 }
 
@@ -35,17 +40,20 @@ for mount_point in \
     "$CHROOT_ABS/proc" \
     "$CHROOT_ABS/sys/fs/cgroup" \
     "$CHROOT_ABS/sys" \
-    "$CHROOT_ABS/tmp" \
-    "$CHROOT_ABS/run"
+    "$CHROOT_ABS/tmp" 
 do
     safe_unmount "$mount_point"
 done
 
-# Alternative method: find all mounts under chroot and unmount
+# Double-check with findmnt if available
 if command -v findmnt >/dev/null 2>&1; then
-    findmnt -rn -o TARGET | grep "^$CHROOT_ABS" | sort -r | while read -r path; do
-        safe_unmount "$path"
-    done
+    remaining=$(findmnt -rn -o TARGET 2>/dev/null | grep "^$CHROOT_ABS" || true)
+    if [ -n "$remaining" ]; then
+        echo "[-] Found remaining mounts, cleaning up:"
+        echo "$remaining" | sort -r | while read -r path; do
+            safe_unmount "$path"
+        done
+    fi
 fi
 
-echo "[-] Unmounting complete."
+echo "[-] Unmounting process complete."
