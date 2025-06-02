@@ -38,22 +38,11 @@ for mount_point in \
     "$CHROOT_ABS/dev/shm" \
     "$CHROOT_ABS/dev" \
     "$CHROOT_ABS/proc" \
-    "$CHROOT_ABS/sys/fs/cgroup" \
     "$CHROOT_ABS/sys" \
-    "$CHROOT_ABS/tmp" 
+    "$CHROOT_ABS/run" \
+    "$CHROOT_ABS/tmp"
 do
     safe_unmount "$mount_point"
 done
-
-# Double-check with findmnt if available
-if command -v findmnt >/dev/null 2>&1; then
-    remaining=$(findmnt -rn -o TARGET 2>/dev/null | grep "^$CHROOT_ABS" || true)
-    if [ -n "$remaining" ]; then
-        echo "[-] Found remaining mounts, cleaning up:"
-        echo "$remaining" | sort -r | while read -r path; do
-            safe_unmount "$path"
-        done
-    fi
-fi
 
 echo "[-] Unmounting process complete."

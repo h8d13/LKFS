@@ -3,42 +3,51 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CHROOT="$SCRIPT_DIR/../alpinestein"
+CHROOT_ABS=$(readlink -f "$CHROOT")
 
-echo "[+] Mounting VFS into $CHROOT..."
+echo "[+] Mounting VFS into $CHROOT_ABS..."
 
 # Create necessary directories
-mkdir -p "$CHROOT"/{dev,dev/pts,proc,sys,tmp}
+mkdir -p "$CHROOT"/{dev,dev/pts,dev/shm,proc,sys,run,tmp}
 
-# Mount with detailed output
-mount_with_details() {
+# Safe mount function with proper option handling
+safe_mount() {
     local mount_type="$1"
     local source="$2"
     local target="$3"
-    local options="$4"
+    local mount_opts="$4"
     
-    if ! mount | grep -q "$target"; then
+    if ! mount | grep -q " $target "; then
         echo "[+] Mounting $mount_type: $source -> $target"
-        if [ -n "$options" ]; then
-            mount $options "$source" "$target"
+        
+        if [ "$mount_type" = "bind" ]; then
+            mount --rbind "$source" "$target"
+        elif [ -n "$mount_opts" ]; then
+            mount -t "$mount_type" -o "$mount_opts" "$source" "$target"
         else
             mount -t "$mount_type" "$source" "$target"
         fi
+        
         echo "[+] ✓ Successfully mounted $target"
     else
         echo "[+] Already mounted: $target"
     fi
 }
 
-# Mount filesystems with detailed output
-mount_with_details "proc" "none" "$CHROOT/proc"
-mount_with_details "sysfs" "/sys" "$CHROOT/sys" "--rbind"
+# Mount filesystems
+safe_mount "proc" "none" "$CHROOT/proc"
+
+safe_mount "bind" "/sys" "$CHROOT/sys"
 mount --make-rprivate "$CHROOT/sys"
 echo "[+] Made $CHROOT/sys private"
 
-mount_with_details "devtmpfs" "/dev" "$CHROOT/dev" "--rbind"
-mount --make-rprivate "$CHROOT/dev" 
+safe_mount "bind" "/dev" "$CHROOT/dev"
+mount --make-rprivate "$CHROOT/dev"
 echo "[+] Made $CHROOT/dev private"
 
-mount_with_details "tmpfs" "tmpfs" "$CHROOT/tmp"
+safe_mount "tmpfs" "tmpfs" "$CHROOT/run" "mode=0755,nodev,nosuid,noexec"
+safe_mount "tmpfs" "tmpfs" "$CHROOT/tmp"
+safe_mount "devpts" "devpts" "$CHROOT/dev/pts" "newinstance,ptmxmode=0666"
+safe_mount "tmpfs" "tmpfs" "$CHROOT/dev/shm" "mode=1777"
 
 echo "[+] All mounts completed successfully!"
