@@ -16,7 +16,7 @@ Then the limit is your imagination as always.
 ---- 
 
 Using unshare:
-
+``` 
 #examples see unshare manpage
 #sudo ./run.sh shared | slave | private
 #--fork 
@@ -25,6 +25,7 @@ Using unshare:
 #--pid
 #--net 
 #--ipc
+```
 
 ---- 
 
