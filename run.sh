@@ -7,7 +7,7 @@ fi
 
 ALPF_DIR="alpinestein"
 # Magic reset/update line
-rm -rf alpinestein
+#rm -rf alpinestein
 # Install Alpine if needed
 chmod +x ./utils/install.sh && ./utils/install.sh "$ALPF_DIR"
 
