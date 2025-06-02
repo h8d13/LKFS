@@ -7,6 +7,13 @@ ROOT_DIR="$ALPF_DIR/root"
 PRO_D_DIR="$ALPF_DIR/etc/profile.d"
 MODS_DIR="$SCRIPT_DIR/../assets/mods"
 
+# Cleanup function for this namespace
+cleanup_chroot() {
+    echo "[+] Cleaning up chroot namespace..."
+    "$SCRIPT_DIR/unmount.sh"
+}
+trap cleanup_chroot EXIT
+
 # This script runs inside the unshared mount namespace
 echo "[+] Setting up isolated chroot environment..."
 
