@@ -31,9 +31,10 @@ cp /etc/resolv.conf "$ALPF_DIR/etc/resolv.conf"
 
 # Setup profile scripts
 cat "$SCRIPT_DIR/../assets/issue.ceauron" > "$PRO_D_DIR/logo.sh" && chmod +x "$PRO_D_DIR/logo.sh"
+cp "$SCRIPT_DIR/bootstrap.sh" "$ROOT_DIR/bootstrap.sh" && chmod +x "$ROOT_DIR/bootstrap.sh"
+
 cp "$MODS_DIR/welcome.sh" "$PRO_D_DIR/welcome.sh" && chmod +x "$PRO_D_DIR/welcome.sh"
 cp "$MODS_DIR/version.sh" "$PRO_D_DIR/version.sh" && chmod +x "$PRO_D_DIR/version.sh"
-
 # Enter chroot as login
 echo "[+] Entering Alpine chroot environment..."
 chroot "$ALPF_DIR" /bin/sh -c ". /root/.profile; exec /bin/sh -l"
