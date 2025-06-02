@@ -7,8 +7,9 @@ fi
 
 ALPF_DIR="alpinestein"
 # Magic reset/update line
-rm -rf alpinestein
+echo "[+] Removing LKFS..."; rm -rf alpinestein
 # Install Alpine if needed
+echo "[+] Installing LKFS..."
 chmod +x ./utils/install.sh && ./utils/install.sh "$ALPF_DIR"
 
 # Launch in isolated mount namespace (cleanup handled inside)
