@@ -21,7 +21,8 @@ echo "[+] Setting up isolated chroot environment..."
 "$SCRIPT_DIR/mount.sh"
 
 # Strucs
-mkdir -p "$ROOT_DIR $PRO_D_DIR"
+mkdir -p "$ROOT_DIR" \
+    "$PRO_D_DIR"
 
 # Configure the chroot environment
 cp "$SCRIPT_DIR/../assets/config.conf" "$ROOT_DIR/.ashrc"
