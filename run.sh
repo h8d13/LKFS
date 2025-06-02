@@ -17,6 +17,11 @@ chmod +x ./utils/chroot_launcher.sh && unshare --mount --propagation "$@" ./util
 
 #examples see unshare manpage
 #sudo ./run.sh shared | slave | private
-# --fork --uts --hostname alpine-test --user --map-root-user --pid
+#--fork 
+#--uts --hostname alpine-test 
+#--user --map-root-user 
+#--pid
+#--net 
+#--ipc
 
 echo "[+] Exited chroot environment. Namespace cleanup completed automatically."
