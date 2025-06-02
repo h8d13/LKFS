@@ -15,7 +15,16 @@ Then the limit is your imagination as always.
 
 ---- 
 
-Which makes it so that the host doesn't have any form of access to the files of Alpinestein. Or tiny hill?  
+Using unshare:
+
+#examples see unshare manpage
+#sudo ./run.sh shared | slave | private
+#--fork 
+#--uts --hostname alpine-test 
+#--user --map-root-user 
+#--pid
+#--net 
+#--ipc
 
 ---- 
 
@@ -25,7 +34,7 @@ Download the repo and extract or `git clone https://github.com/h8d13/LKFS`
 
 ```
 sudo chmod +x run.sh
-sudo ./run.sh
+sudo ./run.sh args
 ```
 
 You can then just use it like a normal Alpine install `apk add micro-tetris`
