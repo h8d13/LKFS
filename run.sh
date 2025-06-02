@@ -10,10 +10,13 @@ ALPF_DIR="alpinestein"
 rm -rf alpinestein
 # Install Alpine if needed
 chmod +x ./utils/install.sh && ./utils/install.sh "$ALPF_DIR"
-mkdir -p "$ALPF_DIR/root" "$ALPF_DIR/etc/profile.d"
 
 # Launch in isolated mount namespace (cleanup handled inside)
 echo "[+] Creating isolated mount namespace..."
-chmod +x ./utils/chroot_launcher.sh && unshare --mount --propagation slave ./utils/chroot_launcher.sh
+chmod +x ./utils/chroot_launcher.sh && unshare --mount --propagation "$@" ./utils/chroot_launcher.sh
+
+#examples see unshare manpage
+#sudo ./run.sh shared | slave | private
+# --fork --uts --hostname alpine-test --user --map-root-user --pid
 
 echo "[+] Exited chroot environment. Namespace cleanup completed automatically."
