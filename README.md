@@ -13,6 +13,9 @@ Instead of building kernel (which honestly confuses me more than anything) we'll
 Coolest part of this project: Initial auto download is **3.3mb.** (Alpine MiniRoot FS)
 
 Extracted is < ~10mb, end goal being a kind of TUI-os + Port it to actual hardware (190mb +/-)
+
+> With keyboard symbols.
+
 And for the whole process to take **less than 30 seconds.**
 
 Download the repo and extract or `git clone https://github.com/h8d13/LKFS`
