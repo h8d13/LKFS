@@ -17,14 +17,11 @@ safe_mount() {
     local source="$2"
     local target="$3"
     local mount_opts="$4"
-    
     if mountpoint -q "$target" 2>/dev/null; then
         echo "[+] Already mounted: $target"
         return 0
     fi
-    
     echo "[+] Mounting $mount_type: $source -> $target"
-    
     case "$mount_type" in
         "bind")
             mount --bind "$source" "$target"
@@ -40,7 +37,6 @@ safe_mount() {
             fi
             ;;
     esac
-    
     echo "[+] ✓ Successfully mounted $target"
 }
 

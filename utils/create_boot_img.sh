@@ -12,7 +12,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CHROOT="$SCRIPT_DIR/../alpinestein"
 IMAGE_FILE="${1:-alpine-boot.img}"
-IMAGE_SIZE="${2:-1G}"
+IMAGE_SIZE="${2:-20G}"
 
 # Source configuration file
 CONFIG_FILE="$SCRIPT_DIR/../ALPM-FS.conf"
@@ -154,9 +154,14 @@ chroot /mnt/alpine-img /bin/sh <<CHROOT_CMD
 . /root/.profile 2>/dev/null || true
 apk update
 apk add $CORE_PACKAGES
+[ -n "$CORE_PACKAGES2" ] && apk add $CORE_PACKAGES2
 apk add --no-scripts $BOOT_PACKAGES
 apk add $SYSTEM_PACKAGES
 apk add $EXTRA_PACKAGES
+[ "$WIFI_NEEDED" = "yes" ] && [ -n "$WIFI_PACKAGES" ] && apk add $WIFI_PACKAGES
+[ -n "$NTH_PACKAGES" ] && apk add $NTH_PACKAGES
+[ -n "$HW_GROUP_INTEL" ] && apk add --no-scripts $HW_GROUP_INTEL
+[ -n "$GP_GROUP_MESA" ] && apk add $GP_GROUP_MESA
 CHROOT_CMD
 
 # Configure boot services (same for both modes)
@@ -180,6 +185,13 @@ for service in $SERVICES_DEFAULT; do
     rc-update add \$service default
 done
 
+# Add WiFi services if enabled
+if [ "$WIFI_NEEDED" = "yes" ] && [ -n "$SERVICES_DEFAULT_WIFI" ]; then
+    for service in $SERVICES_DEFAULT_WIFI; do
+        rc-update add \$service default
+    done
+fi
+
 # Configure zram for swap
 cat > /etc/conf.d/zram-init <<-ZRAMCONF
 	load_on_start=yes
@@ -189,6 +201,21 @@ cat > /etc/conf.d/zram-init <<-ZRAMCONF
 	size0=$ZRAM_SIZE
 	algo0=$ZRAM_ALGO
 ZRAMCONF
+
+# Configure NetworkManager
+mkdir -p /etc/NetworkManager/conf.d
+cat > /etc/NetworkManager/NetworkManager.conf <<-NMCONF
+	[main]
+	dhcp=internal
+	plugins=ifupdown,keyfile
+
+	[ifupdown]
+	managed=true
+
+	[device]
+	wifi.scan-rand-mac-address=yes
+	wifi.backend=wpa_supplicant
+NMCONF
 
 # Create inittab
 cat > /etc/inittab <<'EOF'
@@ -267,16 +294,6 @@ umount /mnt/alpine-img/efi
 # Set hostname
 echo "[*] Setting hostname..."
 echo "$HOSTNAME" > /mnt/alpine-img/etc/hostname
-
-# Create network interfaces configuration
-echo "[*] Configuring network interfaces..."
-cat > /mnt/alpine-img/etc/network/interfaces <<NETCONF
-auto lo
-iface lo inet loopback
-
-auto eth0
-iface eth0 inet dhcp
-NETCONF
 
 # Set root password in chroot
 echo "[*] Setting root password..."
