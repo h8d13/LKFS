@@ -8,14 +8,19 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 IMAGE_FILE="${1}"
-TARGET_DEVICE="${2}"
 
-if [ -z "$IMAGE_FILE" ] || [ -z "$TARGET_DEVICE" ]; then
-    echo "Usage: $0 <image-file> <target-device>"
-    echo "Example: $0 alpine-boot.img /dev/sdb"
-    echo ""
-    echo "Available devices:"
-    lsblk -d -o NAME,SIZE,TYPE,MOUNTPOINT | grep disk
+# Show available devices
+echo "==================================="
+echo "Available block devices:"
+echo "==================================="
+lsblk
+echo ""
+
+# Prompt for target device
+read -r -p "Enter target device (e.g., /dev/sdX): " TARGET_DEVICE
+
+if [ -z "$TARGET_DEVICE" ]; then
+    echo "Error: No device specified!"
     exit 1
 fi
 
@@ -27,16 +32,6 @@ fi
 if [ ! -b "$TARGET_DEVICE" ]; then
     echo "Error: '$TARGET_DEVICE' is not a valid block device!"
     exit 1
-fi
-
-# Safety check - make sure it's not a system disk
-if echo "$TARGET_DEVICE" | grep -qE '(sda|nvme0n1|mmcblk0)$'; then
-    echo "WARNING: $TARGET_DEVICE looks like a system disk!"
-    read -r -p "Are you ABSOLUTELY sure you want to continue? [yes/NO]: " CONFIRM
-    if [ "$CONFIRM" != "yes" ]; then
-        echo "Aborted."
-        exit 0
-    fi
 fi
 
 echo "==================================="
@@ -72,21 +67,27 @@ sleep 2
 
 # Reload partition table
 echo ""
-echo "[3/5] Reloading partition table..."
-partprobe "$TARGET_DEVICE"
+echo "[3/6] Reloading partition table..."
+partprobe "$TARGET_DEVICE" #devnull
 sleep 1
-
-# GPT: EFI partition (1) + Root partition (2) = next is 3
-NEXT_PART=3
 
 # Create data partition with remaining space
 echo ""
 echo "[4/5] Creating data partition with remaining space..."
-# Get the end of partition 2 (root partition)
-LAST_END=$(parted -s "$TARGET_DEVICE" unit s print | grep "^ 2" | awk '{print $3}' | sed 's/s//')
-START_SECTOR=$((LAST_END + 1))
 
-parted -s "$TARGET_DEVICE" mkpart primary ext4 ${START_SECTOR}s 100%
+# Get the size of the USB device in sectors
+DISK_SIZE=$(blockdev --getsz "$TARGET_DEVICE")
+# Get image size in bytes, convert to sectors (512 bytes each)
+IMAGE_SIZE=$(stat -c%s "$IMAGE_FILE")
+IMAGE_SECTORS=$((IMAGE_SIZE / 512))
+
+echo "  Disk: $DISK_SIZE sectors"
+echo "  Image: $IMAGE_SECTORS sectors"
+echo "  Available: $((DISK_SIZE - IMAGE_SECTORS)) sectors"
+
+# Create a new partition using the remaining space (fdisk will auto-start after partition 2)
+echo -e "n\np\n3\n\n\nw" | fdisk "$TARGET_DEVICE" >/dev/null 2>&1 || true
+sync
 
 # Reload partition table
 partprobe "$TARGET_DEVICE"
@@ -95,14 +96,14 @@ sleep 2
 # Format the data partition
 echo ""
 echo "[5/5] Formatting data partition..."
-# Determine the partition device name
+# Determine the partition device name (partition 3)
 if echo "$TARGET_DEVICE" | grep -q 'nvme\|mmcblk'; then
-    DATA_PART="${TARGET_DEVICE}p${NEXT_PART}"
+    DATA_PART="${TARGET_DEVICE}p3"
 else
-    DATA_PART="${TARGET_DEVICE}${NEXT_PART}"
+    DATA_PART="${TARGET_DEVICE}3"
 fi
 
-mkfs.ext4 -L "ALPINE_DATA" "$DATA_PART"
+mkfs.ext4 -F -L "ALPINE_DATA" "$DATA_PART"
 
 echo ""
 echo "==================================="
@@ -112,14 +113,8 @@ echo ""
 lsblk "$TARGET_DEVICE"
 echo ""
 echo "Partitions:"
-echo "  ${TARGET_DEVICE}p1 (or ${TARGET_DEVICE}1) - EFI System"
-echo "  ${TARGET_DEVICE}p2 (or ${TARGET_DEVICE}2) - Alpine Root"
+echo "  ${TARGET_DEVICE}p1 or ${TARGET_DEVICE}1 - EFI System"
+echo "  ${TARGET_DEVICE}p2 or ${TARGET_DEVICE}2 - Alpine Root"
 echo "  $DATA_PART - Data (labeled ALPINE_DATA)"
 echo ""
-echo "After booting Alpine, mount the data partition with:"
-echo "  mkdir -p /mnt/data"
-echo "  mount $DATA_PART /mnt/data"
-echo ""
-echo "Or add to /etc/fstab for automatic mounting:"
-echo "  LABEL=ALPINE_DATA /mnt/data ext4 defaults 0 2"
-echo ""
+

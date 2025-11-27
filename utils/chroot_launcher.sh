@@ -37,6 +37,7 @@ cat "$ASS_DIR/issue.ceauron" > "$PRO_D_DIR/logo.sh" && chmod +x "$PRO_D_DIR/logo
 
 cp "$MODS_DIR/welcome.sh" "$PRO_D_DIR/welcome.sh" && chmod +x "$PRO_D_DIR/welcome.sh"
 cp "$MODS_DIR/version.sh" "$PRO_D_DIR/version.sh" && chmod +x "$PRO_D_DIR/version.sh"
+cp "$MODS_DIR/automount-data.sh" "$PRO_D_DIR/automount-data.sh" && chmod +x "$PRO_D_DIR/automount-data.sh"
 
 # Enter chroot as login
 echo "[+] Entering Alpine chroot environment..."

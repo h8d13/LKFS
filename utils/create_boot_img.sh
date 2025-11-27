@@ -55,7 +55,7 @@ if [ -f "$CHROOT/etc/apk/repositories" ]; then
         "$SCRIPT_DIR/install.sh" "$CHROOT"
 
         echo ""
-        echo "Base installation rebuilt. Please run './run.sh private' to apply mods,"
+        echo "Base installation rebuilt. Please run 'sudo ./run.sh private' to apply mods,"
         echo "then run this script again."
         exit 0
     fi
