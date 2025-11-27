@@ -53,10 +53,10 @@ echo "[1/2] Unmounting any mounted partitions..."
 umount "${USB_DEVICE}"* 2>/dev/null || true
 
 # Write the entire image to the disk
-echo "[2/2] Writing Alpine system (entire image)..."
+echo "[2/2] Writing ALPM-FS to USB Alpine system..."
 
 # Write the complete image file (basically root partition)
-dd if="$IMAGE_FILE" of="$USB_DEVICE" bs=4M status=progress oflag=sync
+dd if="$IMAGE_FILE" of="$USB_DEVICE" bs=16M status=progress
 sync
 sleep 3
 sync
