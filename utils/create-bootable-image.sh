@@ -139,8 +139,8 @@ load_on_start=yes
 unload_on_stop=yes
 num_devices=1
 type0=swap
-flag0=zstd
 size0=2048
+algo0=zstd
 ZRAMCONF
 
 # Create inittab
