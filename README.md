@@ -8,10 +8,12 @@
 
 ----
 
-Coolest part of this project: Initial auto download is **3.3mb.**
+Instead of building kernel (which honestly confuses me more than anything) we'll give full control by starting at the smallest point possible.
+
+Coolest part of this project: Initial auto download is **3.3mb.** (Alpine MiniRoot FS)
 
 Extracted is < ~10mb, end goal being a kind of TUI-os + Port it to actual hardware (190mb +/-)
-And for the whole process to take less than 30 seconds.
+And for the whole process to take **less than 30 seconds.**
 
 Download the repo and extract or `git clone https://github.com/h8d13/LKFS`
 
@@ -95,6 +97,4 @@ sudo dd if=alpine-boot.img of=/dev/sdX bs=4M status=progress
 ```
 
 **Default credentials:** root / alpine (change after first boot!)
-Also need to run `apk fix && apk update && apk upgrade`
-
-The error is cause by installing grub inside chroot which it then gets confused as to where /dev/loop2 is.
+Also need to run `apk update && apk upgrade` once you are in.
