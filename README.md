@@ -34,7 +34,7 @@ Using unshare:
 #--ipc
 ```
 
-This will download the base mini-FS and set it up using the assets.
+This will download the base mini-FS and set it up using the assets. (Which you can obviously modify)
 
 ----
 
@@ -66,6 +66,9 @@ Transform this chroot environment into a fully bootable Alpine Linux UEFI system
 See `ALPM-FS.conf` **BEFORE** proceeding.
 
 VM Final size (using linux-virt): 87.5 MiB
+FULL Final size (lts / mainlaine): 195 MiB
+
+With hardware drivers + mesa: 800 MiB
 
 ### Create Bootable Disk Image
 
@@ -95,13 +98,10 @@ sudo ./utils/write_img_usb.sh alpine-boot.img /dev/sdX
 
 This will:
 - Write the bootable image
-- Create a third partition using all remaining space
-- Format it as ext4 with label "ALPINE_DATA"
 
-**Manual:** Simple dd write (wastes space on large USB drives):
-```bash
-sudo dd if=alpine-boot.img of=/dev/sdX bs=4M status=progress
-```
+You can use the remaining space to create another data partition you'll have to add to fstab.
 
 **Default credentials:** root / alpine (change after first boot!)
 Also need to run `apk update && apk upgrade` once you are in.
+
+Then you can run setup-alpine like you normally would and at disk selection pick "none".
