@@ -31,3 +31,6 @@ Files copied:
 - `config.conf` → `/root/.ashrc` (shell config)
 - `profile.sh` → generates `/root/.profile` (ENV bootstrap)
 - `mods/*.sh` → `/etc/profile.d/` (login scripts for logo, welcome msg, version)
+- Or some mods can be copied other place in `chroot_launcher`
+
+Another hack consisted in symlinking /boot to /efi for base install (efi stub boot).
