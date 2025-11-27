@@ -10,7 +10,8 @@
 
 Coolest part of this project: Initial auto download is **3.3mb.**
 
-Extracted is < ~10mb, end goal being a kind of TUI-os + Port it to actual hardware.
+Extracted is < ~10mb, end goal being a kind of TUI-os + Port it to actual hardware (190mb +/-)
+And for the whole process to take less than 30 seconds.
 
 Download the repo and extract or `git clone https://github.com/h8d13/LKFS`
 
@@ -34,7 +35,6 @@ This will download the base mini-FS and set it up using the assets.
 
 ## Configure
 
-
 ```
 sudo chmod +x run.sh
 sudo ./run.sh args
@@ -42,9 +42,9 @@ sudo ./run.sh args
 
 You can then just use it like a normal Alpine install `apk add micro-tetris`
 
-(You can add `-vvv` if you want to see exactly where the 14kb of Tetris are going) 
+(You can add `-vvv` if you want to see exactly where the 14kb of Tetris are going)
 
-[1989 Tetris Obf](https://tromp.github.io/tetris.html) 
+[1989 Tetris Obf](https://tromp.github.io/tetris.html)
 
 Then `tetris`
 
@@ -61,30 +61,27 @@ Transform this chroot environment into a fully bootable Alpine Linux UEFI system
 ### Create Bootable Disk Image
 
 ```bash
-sudo ./utils/create-bootable-image.sh alpine-boot.img 2G
+sudo ./utils/create_boot_img.sh alpine-boot.img 2G
 ```
 
 This will:
 - Create a GPT/UEFI bootable disk image
-- Install kernel and GRUB EFI bootloader
-- Configure boot services and fstab
+- Install kernel and GRUB2 EFI bootloader
+- Configure boot services, fstab, zram
 - Set up a complete bootable system
 
 ### Test with QEMU
 
 ```bash
 cp /usr/share/edk2/x64/OVMF_VARS.4m.fd /tmp/OVMF_VARS.fd
-qemu-system-x86_64 -m 1G \
-    -drive if=pflash,format=raw,readonly=on,file=/usr/share/edk2/x64/OVMF_CODE.4m.fd \
-    -drive if=pflash,format=raw,file=/tmp/OVMF_VARS.fd \
-    -drive file=alpine-boot.img,format=raw
+sudo ./test_qemu.sh
 ```
 
 ### Write to USB
 
 **Recommended:** Use the helper script to automatically create a data partition:
 ```bash
-sudo ./utils/write-to-usb.sh alpine-boot.img /dev/sdX
+sudo ./utils/write_img_usb.sh alpine-boot.img /dev/sdX
 ```
 
 This will:
@@ -98,3 +95,6 @@ sudo dd if=alpine-boot.img of=/dev/sdX bs=4M status=progress
 ```
 
 **Default credentials:** root / alpine (change after first boot!)
+Also need to run `apk fix && apk update && apk upgrade`
+
+The error is cause by installing grub inside chroot which it then gets confused as to where /dev/loop2 is.

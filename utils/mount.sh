@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+#HL#utils/mount.sh#
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"

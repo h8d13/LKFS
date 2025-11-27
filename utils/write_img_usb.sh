@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+#HL#utils/write-to-usb.sh#
 # Write Alpine UEFI bootable image to USB and create data partition with remaining space
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -31,7 +32,7 @@ fi
 # Safety check - make sure it's not a system disk
 if echo "$TARGET_DEVICE" | grep -qE '(sda|nvme0n1|mmcblk0)$'; then
     echo "WARNING: $TARGET_DEVICE looks like a system disk!"
-    read -p "Are you ABSOLUTELY sure you want to continue? [yes/NO]: " CONFIRM
+    read -r -p "Are you ABSOLUTELY sure you want to continue? [yes/NO]: " CONFIRM
     if [ "$CONFIRM" != "yes" ]; then
         echo "Aborted."
         exit 0
@@ -48,7 +49,7 @@ echo ""
 lsblk "$TARGET_DEVICE"
 echo ""
 echo "WARNING: This will ERASE all data on $TARGET_DEVICE!"
-read -p "Continue? [y/N]: " CONFIRM
+read -r -p "Continue? [y/N]: " CONFIRM
 
 if [ "$CONFIRM" != "y" ] && [ "$CONFIRM" != "Y" ]; then
     echo "Aborted."
@@ -58,7 +59,7 @@ fi
 # Unmount any mounted partitions
 echo ""
 echo "[1/5] Unmounting any mounted partitions..."
-umount ${TARGET_DEVICE}* 2>/dev/null || true
+umount "${TARGET_DEVICE}"* 2>/dev/null || true
 
 # Write the image
 echo ""
