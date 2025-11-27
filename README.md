@@ -4,32 +4,36 @@
 ## Alpine-Mini Chroot 👻 
 
 > Prereqs: Be on a linux system with tar, wget, bash
+> Assumes x86_64
 
 ----
 
 Coolest part of this project: Initial auto download is **3.3mb.**
 
-Extracted is < ~10mb, end goal being a kind of TUI-os. 
+Extracted is < ~10mb, end goal being a kind of TUI-os + Port it to actual hardware.
 
----- 
+Download the repo and extract or `git clone https://github.com/h8d13/LKFS`
+
+----
 
 Using unshare:
-``` 
+```
 #examples see unshare manpage
 #sudo ./run.sh shared | slave | private
-#--fork 
-#--uts --hostname alpine-test 
-#--user --map-root-user 
+#--fork
+#--uts --hostname alpine-test
+#--user --map-root-user
 #--pid
-#--net 
+#--net
 #--ipc
 ```
 
----- 
+This will download the base mini-FS and set it up using the assets.
+
+----
 
 ## Configure
 
-Download the repo and extract or `git clone https://github.com/h8d13/LKFS`
 
 ```
 sudo chmod +x run.sh
@@ -45,3 +49,52 @@ You can then just use it like a normal Alpine install `apk add micro-tetris`
 Then `tetris`
 
 ![Screenshot_20250513_182948](https://github.com/user-attachments/assets/1ee28de2-ba20-4aa2-b3c5-4d2793499d61)
+
+Type `exit` when you want to leave.
+
+----
+
+## Making it Bootable
+
+Transform this chroot environment into a fully bootable Alpine Linux UEFI system!
+
+### Create Bootable Disk Image
+
+```bash
+sudo ./utils/create-bootable-image.sh alpine-boot.img 2G
+```
+
+This will:
+- Create a GPT/UEFI bootable disk image
+- Install kernel and GRUB EFI bootloader
+- Configure boot services and fstab
+- Set up a complete bootable system
+
+### Test with QEMU
+
+```bash
+cp /usr/share/edk2/x64/OVMF_VARS.4m.fd /tmp/OVMF_VARS.fd
+qemu-system-x86_64 -m 1G \
+    -drive if=pflash,format=raw,readonly=on,file=/usr/share/edk2/x64/OVMF_CODE.4m.fd \
+    -drive if=pflash,format=raw,file=/tmp/OVMF_VARS.fd \
+    -drive file=alpine-boot.img,format=raw
+```
+
+### Write to USB
+
+**Recommended:** Use the helper script to automatically create a data partition:
+```bash
+sudo ./utils/write-to-usb.sh alpine-boot.img /dev/sdX
+```
+
+This will:
+- Write the bootable image
+- Create a third partition using all remaining space
+- Format it as ext4 with label "ALPINE_DATA"
+
+**Manual:** Simple dd write (wastes space on large USB drives):
+```bash
+sudo dd if=alpine-boot.img of=/dev/sdX bs=4M status=progress
+```
+
+**Default credentials:** root / alpine (change after first boot!)
