@@ -131,7 +131,7 @@ ln -sf /efi /mnt/alpine-img/boot
 echo "[6/7] Installing kernel and bootloader..."
 mount -t proc proc /mnt/alpine-img/proc
 mount -t sysfs sysfs /mnt/alpine-img/sys
-mount -t tmpfs tmpfs /mnt/alpine-img/dev -o mode=0755
+mount --bind /dev /mnt/alpine-img/dev
 mkdir -p /mnt/alpine-img/dev/pts
 mount -t devpts devpts /mnt/alpine-img/dev/pts
 
@@ -155,12 +155,12 @@ chroot /mnt/alpine-img /bin/sh <<CHROOT_CMD
 apk update
 apk add $CORE_PACKAGES
 [ -n "$CORE_PACKAGES2" ] && apk add $CORE_PACKAGES2
-apk add --no-scripts $BOOT_PACKAGES
+apk add $BOOT_PACKAGES
 apk add $SYSTEM_PACKAGES
 apk add $EXTRA_PACKAGES
 [ "$WIFI_NEEDED" = "yes" ] && [ -n "$WIFI_PACKAGES" ] && apk add $WIFI_PACKAGES
 [ -n "$NTH_PACKAGES" ] && apk add $NTH_PACKAGES
-[ -n "$HW_GROUP_INTEL" ] && apk add --no-scripts $HW_GROUP_INTEL
+[ -n "$HW_GROUP_INTEL" ] && apk add $HW_GROUP_INTEL
 [ -n "$GP_GROUP_MESA" ] && apk add $GP_GROUP_MESA
 CHROOT_CMD
 
@@ -231,9 +231,13 @@ CHROOT_CMD
 
 # Install GRUB from outside chroot (needs access to loop device)
 echo "[*] Installing GRUB bootloader..."
+
+# Install GRUB with explicit device specification
 grub-install --target=x86_64-efi --efi-directory=/mnt/alpine-img/efi \
              --boot-directory=/mnt/alpine-img/efi --bootloader-id=Alpine \
-             --removable --no-nvram
+             --removable --no-nvram --no-floppy \
+             --modules="part_gpt part_msdos" \
+             --recheck
 
 # Generate GRUB config
 echo "[*] Generating GRUB configuration..."
