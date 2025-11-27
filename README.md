@@ -12,7 +12,7 @@ Instead of building kernel (which honestly confuses me more than anything) we'll
 
 Coolest part of this project: Initial auto download is **3.3mb.** (Alpine MiniRoot FS)
 
-Extracted is < ~10mb, end goal being a kind of TUI-os + Port it to actual hardware (190mb +/-)
+Extracted is < ~10mb, end goal being a kind of TUI-os
 
 > With keyboard symbols.
 
@@ -62,6 +62,10 @@ Type `exit` when you want to leave.
 ## Making it Bootable
 
 Transform this chroot environment into a fully bootable Alpine Linux UEFI system!
+
+See `ALPM-FS.conf` **BEFORE** proceeding.
+
+VM Final size (using linux-virt): 87.5 MiB
 
 ### Create Bootable Disk Image
 

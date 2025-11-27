@@ -12,7 +12,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CHROOT="$SCRIPT_DIR/../alpinestein"
 IMAGE_FILE="${1:-alpine-boot.img}"
-IMAGE_SIZE="${2:-2G}"
+IMAGE_SIZE="${2:-1G}"
 
 # Source configuration file
 CONFIG_FILE="$SCRIPT_DIR/../ALPM-FS.conf"
@@ -33,12 +33,32 @@ echo ""
 echo "Creating: $IMAGE_FILE"
 echo "Size: $IMAGE_SIZE"
 echo ""
-# Verify critical files exist
+
+# Check if Alpine base installation exists and has been configured
 if [ ! -f "$CHROOT/sbin/apk" ]; then
-    echo "Error: Alpine installation is incomplete. /sbin/apk not found!"
+    echo "Error: Alpine base installation not found!"
     echo "Please run: sudo ./run.sh private"
-    echo "Then exit and try again."
+    echo "Then exit and run this script again."
     exit 1
+fi
+
+# Check if Alpine version matches config
+if [ -f "$CHROOT/etc/apk/repositories" ]; then
+    CHROOT_VERSION=$(grep -oP 'alpine/\K[^/]+' "$CHROOT/etc/apk/repositories" | head -1)
+    if [ "$CHROOT_VERSION" != "$ALPINE_VERSION" ]; then
+        echo "Warning: Alpine version mismatch detected"
+        echo "  Config file wants: $ALPINE_VERSION"
+        echo "  Base ALPM-FS has: $CHROOT_VERSION"
+        echo ""
+        echo "Rebuilding Alpine base installation..."
+        rm -rf "$CHROOT"
+        "$SCRIPT_DIR/install.sh" "$CHROOT"
+
+        echo ""
+        echo "Base installation rebuilt. Please run './run.sh private' to apply mods,"
+        echo "then run this script again."
+        exit 0
+    fi
 fi
 
 # Create disk image
@@ -117,13 +137,16 @@ mount -t devpts devpts /mnt/alpine-img/dev/pts
 
 cp /etc/resolv.conf /mnt/alpine-img/etc/resolv.conf
 
-# Ensure /etc/apk/repositories exists
-if [ ! -f /mnt/alpine-img/etc/apk/repositories ]; then
-    mkdir -p /mnt/alpine-img/etc/apk
-    cat > /mnt/alpine-img/etc/apk/repositories <<REPOS
+# Configure /etc/apk/repositories based on config
+mkdir -p /mnt/alpine-img/etc/apk
+cat > /mnt/alpine-img/etc/apk/repositories <<REPOS
 ${ALPINE_MIRROR}/${ALPINE_VERSION}/main
 ${ALPINE_MIRROR}/${ALPINE_VERSION}/community
 REPOS
+
+# Add testing repo if enabled
+if [ "$ENABLE_TESTING" = "yes" ]; then
+    echo "${ALPINE_MIRROR}/${ALPINE_VERSION}/testing" >> /mnt/alpine-img/etc/apk/repositories
 fi
 
 # Install packages and bootloader
@@ -210,13 +233,31 @@ esac
 
 KERNEL_CMDLINE="rootfstype=$ROOT_FS_TYPE $FS_MODULES $KERNEL_CMDLINE_EXTRA"
 
+# Auto-detect kernel and initramfs filenames
+KERNEL_FILE=$(find /mnt/alpine-img/efi -name 'vmlinuz*' -type f 2>/dev/null | head -1)
+INITRAMFS_FILE=$(find /mnt/alpine-img/efi -name 'initramfs*' -type f 2>/dev/null | head -1)
+
+if [ -z "$KERNEL_FILE" ] || [ -z "$INITRAMFS_FILE" ]; then
+    echo "Error: Could not find kernel or initramfs in /efi"
+    echo "Contents of /mnt/alpine-img/efi:"
+    ls -la /mnt/alpine-img/efi/
+    exit 1
+fi
+
+# Extract just the filename
+KERNEL_FILE=$(basename "$KERNEL_FILE")
+INITRAMFS_FILE=$(basename "$INITRAMFS_FILE")
+
+echo "[*] Detected kernel: $KERNEL_FILE"
+echo "[*] Detected initramfs: $INITRAMFS_FILE"
+
 cat > /mnt/alpine-img/efi/grub/grub.cfg <<GRUBCFG
 set timeout=$GRUB_TIMEOUT
 set default=0
 
 menuentry "$GRUB_MENUENTRY" {
-    linux /vmlinuz-lts root=UUID=$PART_UUID $KERNEL_CMDLINE
-    initrd /initramfs-lts
+    linux /$KERNEL_FILE root=UUID=$PART_UUID $KERNEL_CMDLINE
+    initrd /$INITRAMFS_FILE
 }
 GRUBCFG
 
