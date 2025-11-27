@@ -38,6 +38,9 @@ cat "$ASS_DIR/issue.ceauron" > "$PRO_D_DIR/logo.sh" && chmod +x "$PRO_D_DIR/logo
 cp "$MODS_DIR/welcome.sh" "$PRO_D_DIR/welcome.sh" && chmod +x "$PRO_D_DIR/welcome.sh"
 cp "$MODS_DIR/version.sh" "$PRO_D_DIR/version.sh" && chmod +x "$PRO_D_DIR/version.sh"
 
+mkdir -p "$ROOT_DIR/mods"
+cp "$MODS_DIR/sway_user.sh" "$ROOT_DIR/mods/sway_user.sh" && chmod +x "$ROOT_DIR/mods/sway_user.sh"
+
 # Enter chroot as login
 echo "[+] Entering Alpine chroot environment..."
 chroot "$ALPF_DIR" /bin/sh -c ". /root/.profile; exec /bin/sh -l"

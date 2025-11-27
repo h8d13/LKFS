@@ -7,8 +7,12 @@ fi
 
 ALPF_DIR="alpinestein"
 
-# Magic reset/update line
-#echo "[+] Removing LKFS..."; rm -rf alpinestein
+# Handle --reset flag
+if [ "$1" = "--reset" ]; then
+    echo "[+] Removing LKFS..."
+    rm -rf "$ALPF_DIR"
+    shift
+fi
 
 # Install Alpine if needed
 echo "[+] Installing LKFS..."
@@ -19,7 +23,7 @@ echo "[+] Creating isolated mount namespace..."
 chmod +x ./utils/chroot_launcher.sh && unshare --mount --propagation "$@" ./utils/chroot_launcher.sh
 
 #examples see unshare manpage
-#sudo ./run.sh shared | slave | private
+#sudo ./run.sh (--reset) shared | slave | private
 #--fork 
 #--uts --hostname alpine-test 
 #--user --map-root-user 
