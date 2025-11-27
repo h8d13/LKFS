@@ -214,7 +214,7 @@ cat > /mnt/alpine-img/efi/grub/grub.cfg <<GRUBCFG
 set timeout=$GRUB_TIMEOUT
 set default=0
 
-menuentry "Alpine Linux" {
+menuentry "$GRUB_MENUENTRY" {
     linux /vmlinuz-lts root=UUID=$PART_UUID $KERNEL_CMDLINE
     initrd /initramfs-lts
 }
