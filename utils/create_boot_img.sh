@@ -1,13 +1,12 @@
 #!/bin/bash
 #HL#utils/create-bootable-image.sh#
 # Create a bootable Alpine disk image (for VMs/testing)
+set -e
 
 if [ "$(id -u)" -ne 0 ]; then
     echo "This script must be run as root!"
     exit 1
 fi
-
-set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CHROOT="$SCRIPT_DIR/../alpinestein"
