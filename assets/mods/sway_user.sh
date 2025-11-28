@@ -20,6 +20,8 @@ echo "[MOD] Copying default sway files..."
 mkdir -p /home/"$USER"/.config/sway
 cp /etc/sway/config /home/"$USER"/.config/sway/
 
+chown -R "$USER":"$USER" "/home/$USER/.config"
+
 # Add user to required groups
 echo "[MOD] Adding $USER to groups: input, video, seat..."
 for group in input video seat audio; do
