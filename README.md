@@ -108,3 +108,5 @@ Generally on alpine you're going to want to to run `setup-alpine` this is a scri
 Finally they also have helpers for `setup-desktop <desktop>` and `setup-wayland-base` for example.
 
 I've also included a Sway setup script where you can simple `su <user>` then go to `doas ./root/mods/sway_user.sh`.
+
+More stuffs can be found in [.github](./.github) where I document some of the tricks/ressources I've used.
