@@ -1,20 +1,17 @@
-# LKFS
+# ALPM-FS
 ----
 
-## Alpine-Mini Chroot 👻 
+## Alpine-Mini Chroot 👻
 
-> Prereqs: Be on a linux system with tar, wget, bash
-> Assumes x86_64
+> Prereqs: Be on a linux system with tar, wget, bash, parted and **assumes x86_64 target.** for EFI stub boot.
 
 ----
 
 Instead of building kernel (which honestly confuses me more than anything) we'll give full control by starting at the smallest point possible.
 
-Coolest part of this project: Initial auto download is **3.3mb.** (Alpine MiniRoot FS)
+Coolest part of this project: Initial auto download is **3.3mb.** (Alpine MiniRoot FS) Extracted is < ~10mb, end goal being a kind of TUI-os
 
-Extracted is < ~10mb, end goal being a kind of TUI-os
-
-And for the whole process to take **less than 30 seconds.**
+And for the whole process to take **less than 30 seconds.** + turn it into a fully workign system.
 
 Download the repo and extract or `git clone https://github.com/h8d13/LKFS`
 
@@ -103,3 +100,12 @@ Also need to run `apk update && apk upgrade` once you are in.
 Then you can run setup-alpine like you normally would and at disk selection pick "none".
 
 Finally: using partitionmanager I resize the disk for it to take the full USB.
+
+
+-----
+
+## Post install
+
+Generally on alpine you're going to want to to run `setup-alpine` this is a script that let's you configure stuff like network, passwords, a user, etc all thigns that are required for graphical sessions. **BUT** when it asks you about disks or save location just answer "none" to all since we have created a live system.
+
+Finally they also have helpers for `setup-desktop <desktop>` and `setup-wayland-base` for example.
