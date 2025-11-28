@@ -32,4 +32,4 @@ for group in input video seat audio; do
     adduser "$USER" "$group"
 done
 
-echo "[MOD] User is member of groups: input, video, seat, audio, wheel"
+echo "[MOD] User is member of groups: input, video, seat, audio"
