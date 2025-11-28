@@ -97,10 +97,7 @@ This will: Write the bootable image to the USB as part2, part1 being /efi.
 **Default credentials:** root / alpine (change after first boot!)
 Also need to run `apk update && apk upgrade` once you are in.
 
-Then you can run setup-alpine like you normally would and at disk selection pick "none".
-
 Finally: using partitionmanager I resize the disk for it to take the full USB.
-
 
 -----
 
