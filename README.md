@@ -20,7 +20,7 @@ Download the repo and extract or `git clone https://github.com/h8d13/LKFS`
 Using unshare:
 ```
 #examples see unshare manpage
-#sudo ./run.sh shared | slave | private
+#sudo ./run.sh shared | slave | private (--reset) to redownload fresh.
 #--fork
 #--uts --hostname alpine-test
 #--user --map-root-user
