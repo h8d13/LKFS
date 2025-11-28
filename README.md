@@ -105,14 +105,24 @@ TODO: Proper mgmnt of repos... Have no idea how they work :D
 
 -----
 
-## Post install
+## Post base install
 
 Generally on alpine you're going to want to to run `setup-alpine` this is a script that let's you configure stuff like network, passwords, a user, etc all things that are required for graphical sessions.
 
 **BUT** when it asks you about **disks or save locations** just answer `none` to last 3 prompts for disks, since we have created a live system.
 
 Finally they also have helpers for `setup-desktop <desktop>` and `setup-wayland-base` for example.
-I've also included a Sway setup script where you can simple `su <user>` then go to `doas ./root/mods/sway_user.sh`.
+I've also included a Sway setup script where you can simple `su <user>` then go to `doas ./root/mods/sway_user.sh`. Probably also recommended to install something like SDDM or lightdm or similar. But I left it without and you can run `sway` as your user to start it.
 
 >[!NOTE]
 > More stuffs can be found in [.github](./.github) where I documented some of the tricks/ressources I've used.
+
+```
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak install minitext
+flatpak run io.github.nokse22.minitext
+```
+Of course this is an example please install something more useful.
+Also `doas apk add gnome-2048` because always need that at hand.
+
+----
