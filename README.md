@@ -87,6 +87,8 @@ Test it with chroot: `sudo ./utils/chroot_usb.sh /dev/sdX2`
 
 ### Write to USB
 
+> Usually reset the disk partition table just to make sure :) and zero it out if needed.
+
 **Recommended:** Use the helper script to automatically create a data partition:
 ```bash
 sudo ./utils/write_img_usb.sh alpine-boot.img /dev/sdX
@@ -94,10 +96,12 @@ sudo ./utils/write_img_usb.sh alpine-boot.img /dev/sdX
 
 This will: Write the bootable image to the USB as part2, part1 being /efi.
 
-**Default credentials:** root / alpine (change after first boot!)
-Also need to run `apk update && apk upgrade` once you are in.
+>[!TIP]
+> Finally: using `partitionmanager` I resize the disk for it to take the full USB.
+> **Default credentials:** root / alpine (change after first boot!)
+> Also need to run `apk update && apk upgrade` once you are in.
 
-Finally: using partitionmanager I resize the disk for it to take the full USB.
+TODO: Proper mgmnt of repos... Have no idea how they work :D
 
 -----
 
@@ -105,10 +109,9 @@ Finally: using partitionmanager I resize the disk for it to take the full USB.
 
 Generally on alpine you're going to want to to run `setup-alpine` this is a script that let's you configure stuff like network, passwords, a user, etc all things that are required for graphical sessions.
 
-**BUT** when it asks you about **disks or save locations** just answer `none` to all, since we have created a live system.
+**BUT** when it asks you about **disks or save locations** just answer `none` to last 3 prompts for disks, since we have created a live system.
 
 Finally they also have helpers for `setup-desktop <desktop>` and `setup-wayland-base` for example.
-
 I've also included a Sway setup script where you can simple `su <user>` then go to `doas ./root/mods/sway_user.sh`.
 
 More stuffs can be found in [.github](./.github) where I document some of the tricks/ressources I've used.
