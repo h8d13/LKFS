@@ -9,7 +9,7 @@
 
 Instead of building kernel (which honestly confuses me more than anything) we'll give full control by starting at the smallest point possible.
 
-Coolest part of this project: Initial auto download is **3.3mb.** (Alpine [MiniRoot](https://alpinelinux.org/downloads/) FS) Extracted is < ~10mb, goal being a kind of TUI-os + turn it into a fully working system for bare-metal.
+Coolest part of this project: Initial auto download is **3.3mb.** (Alpine [MiniRoot](https://alpinelinux.org/downloads/) FS) Extracted is < ~8mb, goal being a kind of TUI-os + turn it into a fully working system for bare-metal.
 
 And for the whole process to take **less than 30 seconds.**.
 
