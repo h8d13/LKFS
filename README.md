@@ -35,8 +35,8 @@ This will download the base mini-FS and set it up using the assets. (Which you c
 
 ## Configure
 
+Add to assets and in `utils/chroot_launcher.sh`
 ```
-sudo chmod +x run.sh
 sudo ./run.sh args
 ```
 
