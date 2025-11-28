@@ -17,28 +17,28 @@ Download the repo and extract or `git clone https://github.com/h8d13/ALPM-FS`
 
 ----
 
+Add to `assets/` and in `utils/chroot_launcher.sh`
+
 Using unshare:
 ```
 #examples see unshare manpage
-#sudo ./run.sh shared | slave | private (--reset) to redownload fresh.
+#sudo ./run.sh (--reset) shared | slave | private
+#--reset to redownload ALPM-FS fresh. # should be before unshare options
+## unshare options...
 #--fork
 #--uts --hostname alpine-test
 #--user --map-root-user
 #--pid
 #--net
 #--ipc
+#...
 ```
 
-This will download the base mini-FS and set it up using the assets. (Which you can obviously modify)
+This will download the base mini-FS and set it up using the assets. (Which you can obviously modify) You will then be inside the env.
 
 ----
 
 ## Configure
-
-Add to assets and in `utils/chroot_launcher.sh`
-```
-sudo ./run.sh args
-```
 
 You can then just use it like a normal Alpine install `apk add micro-tetris`
 

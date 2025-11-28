@@ -71,4 +71,3 @@ echo "  $PART1 - EFI Boot"
 echo "  $PART2 - Alpine Root System"
 echo "  Resize part2 to take full size of device if needed!"
 echo ""
-
