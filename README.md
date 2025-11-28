@@ -107,10 +107,12 @@ TODO: Proper mgmnt of repos... Have no idea how they work :D
 
 ## Post base install
 
+### Setup essentials
 Generally on alpine you're going to want to to run `setup-alpine` this is a script that let's you configure stuff like network, passwords, a user, etc all things that are required for graphical sessions.
 
 **BUT** when it asks you about **disks or save locations** just answer `none` to last 3 prompts for disks, since we have created a live system.
 
+### Setup personals
 Finally they also have helpers for `setup-desktop <desktop>` and `setup-wayland-base` for example (Which desktop environment? ('gnome', 'xfce', 'mate', 'sway', 'lxqt', 'plasma' or 'none')
 
 I would not recommend gnome as it's going to be a past version since ver48 introduced dependencies on systemd.
@@ -130,3 +132,14 @@ Of course this is an example please install something more useful.
 Also `doas apk add gnome-2048` because always need that at hand.
 
 ----
+
+<details>
+<summary><b>STATS</b></summary>
+
+### FOR NERDS
+
+[3.399605] Mounting root: ok.
+
+</details>
+
+
