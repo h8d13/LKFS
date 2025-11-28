@@ -1,0 +1,49 @@
+#!/bin/sh
+# Pre-commit hook to run shellcheck on all shell scripts
+
+# Check if shellcheck is installed
+if ! command -v shellcheck >/dev/null 2>&1; then
+    echo "Error: shellcheck is not installed"
+    echo "Install with: sudo pacman -S shellcheck (Arch) or sudo apt install shellcheck (Debian/Ubuntu)"
+    exit 1
+fi
+
+# Find all shell scripts in the repo
+SHELL_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(sh|bash)$' || true)
+
+# Also check files with shebang but no extension
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+for file in $STAGED_FILES; do
+    if [ -f "$file" ]; then
+        if head -n1 "$file" | grep -qE '^#!.*(sh|bash)'; then
+            SHELL_FILES="$SHELL_FILES $file"
+        fi
+    fi
+done
+
+# Remove duplicates and empty entries
+SHELL_FILES=$(echo "$SHELL_FILES" | tr ' ' '\n' | sort -u | grep -v '^$' || true)
+
+if [ -z "$SHELL_FILES" ]; then
+    exit 0
+fi
+
+echo "Running shellcheck on modified shell scripts..."
+
+FAILED=0
+for file in $SHELL_FILES; do
+    echo "Checking: $file"
+    if ! shellcheck "$file"; then
+        FAILED=1
+    fi
+done
+
+if [ $FAILED -eq 1 ]; then
+    echo ""
+    echo "Shellcheck found issues. Please fix them before committing."
+    echo "To bypass this check (not recommended), use: git commit --no-verify"
+    exit 1
+fi
+
+echo "Shellcheck passed!"
+exit 0
