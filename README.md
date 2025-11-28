@@ -106,3 +106,5 @@ Finally: using partitionmanager I resize the disk for it to take the full USB.
 Generally on alpine you're going to want to to run `setup-alpine` this is a script that let's you configure stuff like network, passwords, a user, etc all thigns that are required for graphical sessions. **BUT** when it asks you about disks or save location just answer "none" to all since we have created a live system.
 
 Finally they also have helpers for `setup-desktop <desktop>` and `setup-wayland-base` for example.
+
+I've also included a Sway setup script where you can simple `su <user>` then go to `doas ./root/mods/sway_user.sh`. 
