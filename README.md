@@ -68,7 +68,7 @@ sudo ./utils/create_boot_img.sh alpine-boot.img 2G
 
 This will:
 - Create a GPT/UEFI bootable disk image
-- Install kernel and GRUB2 EFI bootloader
+- Install kernel and GRUB2/reFIND EFI stub bootloader
 - Configure boot services, fstab, zram
 - Set up a complete bootable system
 
