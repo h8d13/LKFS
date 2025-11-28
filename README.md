@@ -60,12 +60,6 @@ Transform this chroot environment into a fully bootable Alpine Linux UEFI system
 
 See `ALPM-FS.conf` **BEFORE** proceeding. [Here](./ALPM-FS.conf)
 
-VM Final size (using linux-virt): 87.5 MiB
-FULL Final size (lts / mainlaine): 195 MiB
-
-With hardware drivers + mesa: 800 MiB
-Full Intel HW + Full MESA: 1.1GB
-
 ### Create Bootable Disk Image
 
 ```bash
@@ -142,6 +136,14 @@ Also `doas apk add gnome-2048` because always need that at hand.
 ### FOR NERDS
 
 [3.399605] Mounting root: ok.
+
+VM Final size (using linux-virt): 87.5 MiB
+
+Final size (lts / mainline): 195 MiB
+
+With hardware drivers + mesa: 800 MiB
+
+Full Intel HW + Full MESA: 1.1GB
 
 </details>
 
