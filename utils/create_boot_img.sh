@@ -158,13 +158,12 @@ if [ "$BOOTLOADER" = "refind" ]; then
         echo "Please update ALPM-FS.conf to enable testing repos."
         exit 1
     fi
-    echo "[*] Using rEFInd bootloader (from edge/testing repository)"
+    echo "[*] Using rEFInd bootloader with with $KERNEL_FLAVOR"
+    echo "[*] From /edge/testing repos experimental..."
     BOOT_PACKAGES="efibootmgr"
-    INSTALL_REFIND="yes"
 elif [ "$BOOTLOADER" = "grub" ]; then
-    echo "[*] Using GRUB bootloader"
+    echo "[*] Using GRUB bootloader with $KERNEL_FLAVOR"
     BOOT_PACKAGES="grub grub-efi efibootmgr"
-    INSTALL_REFIND="no"
 else
     echo "Error: Invalid BOOTLOADER setting: $BOOTLOADER"
     echo "Valid options are: grub, refind"
@@ -178,7 +177,7 @@ apk update
 apk add $CORE_PACKAGES
 [ -n "$CORE_PACKAGES2" ] && apk add $CORE_PACKAGES2
 apk add $BOOT_PACKAGES
-[ "$INSTALL_REFIND" = "yes" ] && apk add --repository ${ALPINE_MIRROR}/edge/testing refind
+[ "$BOOTLOADER" = "refind" ] && apk add --repository ${ALPINE_MIRROR}/edge/testing refind
 apk add $SYSTEM_PACKAGES
 apk add $EXTRA_PACKAGES
 [ "$WIFI_NEEDED" = "yes" ] && [ -n "$WIFI_PACKAGES" ] && apk add $WIFI_PACKAGES
