@@ -414,7 +414,7 @@ umount /mnt/alpine-img/dev
 umount /mnt/alpine-img/sys
 umount /mnt/alpine-img/proc
 
-# Remove the /boot symlink we created for installation
+echo "[*] Removing symlink..."
 rm /mnt/alpine-img/boot
 
 echo "[*] Unmouting full..."
