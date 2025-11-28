@@ -145,6 +145,9 @@ With hardware drivers + mesa: 800 MiB
 
 Full Intel HW + Full MESA: 1.1GB
 
+With 3 github pages open on FF and Sway: Memory: 2.09 GiB / 15.29 GiB (14%)
+And all I need to code: Packages: 637 (apk)
+
 </details>
 
 
