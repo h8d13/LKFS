@@ -13,7 +13,7 @@ Coolest part of this project: Initial auto download is **3.3mb.** (Alpine [MiniR
 
 And for the whole process to take **less than 30 seconds.**.
 
-Download the repo and extract or `git clone https://github.com/h8d13/LKFS`
+Download the repo and extract or `git clone https://github.com/h8d13/ALPM-FS`
 
 ----
 
@@ -103,7 +103,7 @@ Finally: using partitionmanager I resize the disk for it to take the full USB.
 
 ## Post install
 
-Generally on alpine you're going to want to to run `setup-alpine` this is a script that let's you configure stuff like network, passwords, a user, etc all things that are required for graphical sessions. 
+Generally on alpine you're going to want to to run `setup-alpine` this is a script that let's you configure stuff like network, passwords, a user, etc all things that are required for graphical sessions.
 
 **BUT** when it asks you about **disks or save locations** just answer `none` to all, since we have created a live system.
 
