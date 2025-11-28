@@ -86,6 +86,7 @@ This will:
 ```bash
 sudo ./test_qemu.sh
 ```
+Test it with chroot: `sudo ./utils/chroot_usb.sh /dev/sdX2`
 
 ### Write to USB
 
