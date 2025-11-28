@@ -118,7 +118,10 @@ Finally they also have helpers for `setup-desktop <desktop>` and `setup-wayland-
 I would not recommend gnome as it's going to be a past version since ver48 introduced dependencies on systemd.
 Plasma works beautifully with sound of the box! 
 
-I've also included a Sway setup script where you can simple `su <user>` then go to `doas ./root/mods/sway_user.sh`. Probably also recommended to install something like SDDM or lightdm or similar. But I left it without and you can run `sway` as your user to start it.
+I've also included a Sway setup script where you can simple `su <user>` then go to `doas ./root/mods/sway_user.sh`. Probably also recommended to install something like SDDM or lightdm or similar (a firewall, etc). But I left it without and you can run `sway` as your user to start it.
+
+Here is old project of mine which aimed to set-up some stuff 
+https://github.com/h8d13/k2-alpine
 
 >[!NOTE]
 > More stuffs can be found in [.github](./.github) where I documented some of the tricks/ressources I've used.
