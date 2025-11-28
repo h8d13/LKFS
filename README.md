@@ -64,7 +64,7 @@ VM Final size (using linux-virt): 87.5 MiB
 FULL Final size (lts / mainlaine): 195 MiB
 
 With hardware drivers + mesa: 800 MiB
-Full HW + Full MESA: 2GB
+Full Intel HW + Full MESA: 1.1GB
 
 ### Create Bootable Disk Image
 
