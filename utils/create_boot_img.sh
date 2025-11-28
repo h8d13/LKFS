@@ -145,8 +145,30 @@ ${ALPINE_MIRROR}/${ALPINE_VERSION}/community
 REPOS
 
 # Add testing repo if enabled
+# Testing repository only exists in edge, not in versioned releases
 if [ "$ENABLE_TESTING" = "yes" ]; then
-    echo "${ALPINE_MIRROR}/${ALPINE_VERSION}/testing" >> /mnt/alpine-img/etc/apk/repositories
+    echo "${ALPINE_MIRROR}/edge/testing" >> /mnt/alpine-img/etc/apk/repositories
+fi
+
+# Validate bootloader configuration
+if [ "$BOOTLOADER" = "refind" ]; then
+    if [ "$ENABLE_TESTING" != "yes" ]; then
+        echo "Error: rEFInd bootloader requires ENABLE_TESTING=\"yes\""
+        echo "rEFInd is only available in the edge/testing repository."
+        echo "Please update ALPM-FS.conf to enable testing repos."
+        exit 1
+    fi
+    echo "[*] Using rEFInd bootloader (from edge/testing repository)"
+    BOOT_PACKAGES="efibootmgr"
+    INSTALL_REFIND="yes"
+elif [ "$BOOTLOADER" = "grub" ]; then
+    echo "[*] Using GRUB bootloader"
+    BOOT_PACKAGES="grub grub-efi efibootmgr"
+    INSTALL_REFIND="no"
+else
+    echo "Error: Invalid BOOTLOADER setting: $BOOTLOADER"
+    echo "Valid options are: grub, refind"
+    exit 1
 fi
 
 # Install packages and bootloader
@@ -156,6 +178,7 @@ apk update
 apk add $CORE_PACKAGES
 [ -n "$CORE_PACKAGES2" ] && apk add $CORE_PACKAGES2
 apk add $BOOT_PACKAGES
+[ "$INSTALL_REFIND" = "yes" ] && apk add --repository ${ALPINE_MIRROR}/edge/testing refind
 apk add $SYSTEM_PACKAGES
 apk add $EXTRA_PACKAGES
 [ "$WIFI_NEEDED" = "yes" ] && [ -n "$WIFI_PACKAGES" ] && apk add $WIFI_PACKAGES
@@ -229,18 +252,7 @@ EOF
 
 CHROOT_CMD
 
-# Install GRUB from outside chroot (needs access to loop device)
-echo "[*] Installing GRUB bootloader..."
-
-# Install GRUB with explicit device specification
-grub-install --target=x86_64-efi --efi-directory=/mnt/alpine-img/efi \
-             --boot-directory=/mnt/alpine-img/efi --bootloader-id=Alpine \
-             --removable --no-nvram --no-floppy \
-             --modules="part_gpt part_msdos" \
-             --recheck
-
-# Generate GRUB config
-echo "[*] Generating GRUB configuration..."
+# Get partition UUID (needed for both bootloaders)
 PART_UUID=$(blkid -s UUID -o value "$PART_DEV")
 
 # Build kernel cmdline based on filesystem type
@@ -282,7 +294,23 @@ INITRAMFS_FILE=$(basename "$INITRAMFS_FILE")
 echo "[*] Detected kernel: $KERNEL_FILE"
 echo "[*] Detected initramfs: $INITRAMFS_FILE"
 
-cat > /mnt/alpine-img/efi/grub/grub.cfg <<GRUBCFG
+# Install and configure bootloader based on selection
+if [ "$BOOTLOADER" = "grub" ]; then
+    echo "[*] Installing GRUB bootloader..."
+
+    # Install GRUB inside chroot
+    chroot /mnt/alpine-img /bin/sh <<GRUB_INSTALL
+. /root/.profile 2>/dev/null || true
+grub-install --target=x86_64-efi --efi-directory=/efi \
+             --boot-directory=/efi --bootloader-id=Alpine \
+             --removable --no-nvram --no-floppy \
+             --modules="part_gpt part_msdos" \
+             --recheck
+GRUB_INSTALL
+
+    # Generate GRUB config
+    echo "[*] Generating GRUB configuration..."
+    cat > /mnt/alpine-img/efi/grub/grub.cfg <<GRUBCFG
 set timeout=$GRUB_TIMEOUT
 set default=0
 
@@ -291,6 +319,66 @@ menuentry "$GRUB_MENUENTRY" {
     initrd /$INITRAMFS_FILE
 }
 GRUBCFG
+
+elif [ "$BOOTLOADER" = "refind" ]; then
+    echo "[*] Installing rEFInd bootloader..."
+
+    # Manually install rEFInd (refind-install has issues with pre-mounted ESP in chroot)
+    echo "[*] Creating rEFInd directory structure..."
+    mkdir -p /mnt/alpine-img/efi/EFI/refind
+    mkdir -p /mnt/alpine-img/efi/EFI/BOOT
+
+    # Copy rEFInd binaries
+    echo "[*] Copying rEFInd binaries..."
+    if [ -f /mnt/alpine-img/usr/share/refind/refind_x64.efi ]; then
+        cp /mnt/alpine-img/usr/share/refind/refind_x64.efi /mnt/alpine-img/efi/EFI/refind/
+        cp /mnt/alpine-img/usr/share/refind/refind_x64.efi /mnt/alpine-img/efi/EFI/BOOT/bootx64.efi
+    else
+        echo "Error: rEFInd binary not found in /usr/share/refind/"
+        exit 1
+    fi
+
+    # Copy icons if they exist
+    if [ -d /mnt/alpine-img/usr/share/refind/icons ]; then
+        echo "[*] Copying rEFInd icons..."
+        cp -r /mnt/alpine-img/usr/share/refind/icons /mnt/alpine-img/efi/EFI/refind/
+    fi
+
+    # Copy btrfs driver if using btrfs filesystem
+    if [ "$ROOT_FS_TYPE" = "btrfs" ]; then
+        echo "[*] Copying Btrfs driver for rEFInd..."
+        if [ -f /mnt/alpine-img/usr/share/refind/drivers_x86_64/btrfs_x64.efi ]; then
+            mkdir -p /mnt/alpine-img/efi/EFI/refind/drivers_x64
+            cp /mnt/alpine-img/usr/share/refind/drivers_x86_64/btrfs_x64.efi \
+               /mnt/alpine-img/efi/EFI/refind/drivers_x64/
+        fi
+    fi
+
+    # Generate rEFInd configuration
+    echo "[*] Generating rEFInd configuration..."
+    cat > /mnt/alpine-img/efi/EFI/refind/refind.conf <<REFINDCFG
+timeout $REFIND_TIMEOUT
+resolution $REFIND_RESOLUTION
+use_graphics_for linux
+
+menuentry "$REFIND_MENUENTRY" {
+    icon     /EFI/refind/icons/os_linux.png
+    volume   $PART_UUID
+    loader   /$KERNEL_FILE
+    initrd   /$INITRAMFS_FILE
+    options  "root=UUID=$PART_UUID $KERNEL_CMDLINE"
+}
+REFINDCFG
+
+    # Create refind_linux.conf in the EFI partition root
+    echo "[*] Creating refind_linux.conf..."
+    cat > /mnt/alpine-img/efi/refind_linux.conf <<REFINDLINUX
+"Boot with standard options" "root=UUID=$PART_UUID $KERNEL_CMDLINE"
+"Boot to single-user mode" "root=UUID=$PART_UUID $KERNEL_CMDLINE single"
+"Boot with minimal options" "root=UUID=$PART_UUID ro"
+REFINDLINUX
+
+fi
 
 # Unmount EFI partition
 umount /mnt/alpine-img/efi
@@ -333,6 +421,6 @@ echo "✓ Bootable image created!"
 echo "==================================="
 echo ""
 echo "Image: $IMAGE_FILE"
-echo "Boot mode: UEFI"
+echo "Boot mode: UEFI : $BOOTLOADER"
 echo "Default root password: alpine"
 echo ""
