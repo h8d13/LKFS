@@ -14,8 +14,6 @@ Coolest part of this project: Initial auto download is **3.3mb.** (Alpine MiniRo
 
 Extracted is < ~10mb, end goal being a kind of TUI-os
 
-> With keyboard symbols.
-
 And for the whole process to take **less than 30 seconds.**
 
 Download the repo and extract or `git clone https://github.com/h8d13/LKFS`
@@ -55,7 +53,7 @@ Then `tetris`
 
 ![Screenshot_20250513_182948](https://github.com/user-attachments/assets/1ee28de2-ba20-4aa2-b3c5-4d2793499d61)
 
-Type `exit` when you want to leave.
+Type `exit` when you want to leave the chroot.
 
 ----
 
@@ -69,6 +67,7 @@ VM Final size (using linux-virt): 87.5 MiB
 FULL Final size (lts / mainlaine): 195 MiB
 
 With hardware drivers + mesa: 800 MiB
+Full HW + Full MESA: 2GB
 
 ### Create Bootable Disk Image
 
@@ -85,7 +84,6 @@ This will:
 ### Test with QEMU
 
 ```bash
-cp /usr/share/edk2/x64/OVMF_VARS.4m.fd /tmp/OVMF_VARS.fd
 sudo ./test_qemu.sh
 ```
 
