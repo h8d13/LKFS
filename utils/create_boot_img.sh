@@ -12,7 +12,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CHROOT="$SCRIPT_DIR/../alpinestein"
 IMAGE_FILE="${1:-alpine-boot.img}"
-IMAGE_SIZE="${2:-20G}"
+IMAGE_SIZE="${2:-2G}"
 
 # Source configuration file
 CONFIG_FILE="$SCRIPT_DIR/../ALPM-FS.conf"
@@ -60,6 +60,7 @@ if [ -f "$CHROOT/etc/apk/repositories" ]; then
         exit 0
     fi
 fi
+############ CHECKS DONE.
 
 # Create disk image
 echo "[1/7] Creating disk image..."
@@ -70,7 +71,7 @@ echo "[2/7] Setting up loop device..."
 LOOP_DEV=$(losetup -f --show "$IMAGE_FILE")
 echo "Loop device: $LOOP_DEV"
 
-# Cleanup function
+# Cleanup trap in case of cancel or error
 cleanup() {
     echo "Cleaning up..."
     mountpoint -q /mnt/alpine-img 2>/dev/null && umount -R /mnt/alpine-img
@@ -87,16 +88,18 @@ parted -s "$LOOP_DEV" set 1 esp on
 parted -s "$LOOP_DEV" mkpart primary "${ROOT_FS_TYPE}" "${EFI_END}MiB" 100%
 
 # Reload partition table
+echo "[*] Reloading partition table..."
 partprobe "$LOOP_DEV"
 sleep 1
 
-# Format partitions
+# Format for EFI
 echo "[4/7] Formatting partitions..."
 EFI_PART="${LOOP_DEV}p1"
 PART_DEV="${LOOP_DEV}p2"
 mkfs.vfat -F32 "$EFI_PART"
 
-# Format root partition based on ROOT_FS_TYPE
+# Format root part
+echo "[*] Creating FS $ROOT_FS_TYPE..."
 case "$ROOT_FS_TYPE" in
     ext4)
         mkfs.ext4 -F "$PART_DEV"
@@ -139,6 +142,7 @@ cp /etc/resolv.conf /mnt/alpine-img/etc/resolv.conf
 
 # Configure /etc/apk/repositories based on config
 mkdir -p /mnt/alpine-img/etc/apk
+echo "[*] Enabling standard repos..."
 cat > /mnt/alpine-img/etc/apk/repositories <<REPOS
 ${ALPINE_MIRROR}/${ALPINE_VERSION}/main
 ${ALPINE_MIRROR}/${ALPINE_VERSION}/community
@@ -147,6 +151,7 @@ REPOS
 # Add testing repo if enabled
 # Testing repository only exists in edge, not in versioned releases
 if [ "$ENABLE_TESTING" = "yes" ]; then
+    echo "[*] Enabling /edge/testing repos experimental..."
     echo "${ALPINE_MIRROR}/edge/testing" >> /mnt/alpine-img/etc/apk/repositories
 fi
 
@@ -171,6 +176,7 @@ else
 fi
 
 # Install packages and bootloader
+echo "[*] Running main chroot script..."
 chroot /mnt/alpine-img /bin/sh <<CHROOT_CMD
 . /root/.profile 2>/dev/null || true
 apk update
@@ -379,10 +385,9 @@ REFINDLINUX
 
 fi
 
-# Unmount EFI partition
+echo "[*] Unmouting EFI..."
 umount /mnt/alpine-img/efi
 
-# Set hostname
 echo "[*] Setting hostname..."
 echo "$HOSTNAME" > /mnt/alpine-img/etc/hostname
 
@@ -404,6 +409,7 @@ tmpfs /tmp tmpfs defaults,nodev,nosuid 0 0
 EOF
 
 # Cleanup
+echo "[*] Unmouting dev/pts/sys/proc..."
 umount /mnt/alpine-img/dev/pts
 umount /mnt/alpine-img/dev
 umount /mnt/alpine-img/sys
@@ -412,6 +418,7 @@ umount /mnt/alpine-img/proc
 # Remove the /boot symlink we created for installation
 rm /mnt/alpine-img/boot
 
+echo "[*] Unmouting full..."
 umount /mnt/alpine-img
 
 echo ""
