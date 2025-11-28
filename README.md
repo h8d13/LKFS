@@ -58,7 +58,7 @@ Type `exit` when you want to leave the chroot.
 
 Transform this chroot environment into a fully bootable Alpine Linux UEFI system!
 
-See `ALPM-FS.conf` **BEFORE** proceeding.
+See `ALPM-FS.conf` **BEFORE** proceeding. [Here](./ALPM-FS.conf)
 
 VM Final size (using linux-virt): 87.5 MiB
 FULL Final size (lts / mainlaine): 195 MiB
