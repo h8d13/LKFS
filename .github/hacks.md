@@ -2,15 +2,15 @@
 
 ### Shell Configuration Trick
 
-**The Problem:** Alpine's ash shell doesn't auto-load configs like bash does with `.bashrc`
+Alpine's ash shell doesn't auto-load configs like bash does with `.bashrc`
 
-**The Solution:** Chain `.profile` → `.ashrc` using the `ENV` variable
+Chain `.profile` → `.ashrc` using the `ENV` variable
 
 1. **`profile.sh`** creates `/root/.profile` with:
    ```sh
    export ENV=$HOME/.ashrc
    ```
-   This tells ash: "auto-source `.ashrc` on every shell startup"
+This tells ash: "auto-source `.ashrc` on every shell startup"
 
 2. **`config.conf`** gets copied to `/root/.ashrc` and contains:
    - Custom colored prompt (PS1)
@@ -25,7 +25,7 @@ Instead of baking configs into the tarball:
 - Keep all configs in `/assets` on the host
 - Copy them into chroot during `chroot_launcher.sh`
 - Modify anytime without re-downloading Alpine (3.3MB stays clean)
-- Easy git version control
+- Easy git version control / branching for specific usecases
 
 Files copied:
 - `config.conf` → `/root/.ashrc` (shell config)
@@ -33,4 +33,4 @@ Files copied:
 - `mods/*.sh` → `/etc/profile.d/` (login scripts for logo, welcome msg, version)
 - Or some mods can be copied other place in `chroot_launcher`
 
-Another hack consisted in symlinking /boot to /efi for base install (efi stub boot).
+Another hack consisted in symlinking `/boot` to `/efi` for base install (efi stub boot).
