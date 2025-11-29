@@ -254,6 +254,15 @@ tty1::respawn:/sbin/getty 38400 tty1
 ::shutdown:/sbin/openrc shutdown
 EOF
 
+# Enable Unicode support in rc.conf
+sed -i 's/#unicode="NO"/unicode="YES"/' /etc/rc.conf
+
+# Configure system locale
+cat > /etc/profile.d/locale.sh <<-LOCALECONF
+	export LANG=$LOCALE
+	export LC_ALL=$LOCALE
+LOCALECONF
+
 CHROOT_CMD
 
 # Get partition UUID (needed for both bootloaders)
