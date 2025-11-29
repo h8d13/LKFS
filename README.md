@@ -129,6 +129,7 @@ echo "XKB_DEFAULT_LAYOUT=$KB_LAYOUT" | doas tee -a /etc/environment
 - Setup a firewall:
 
 ```
+$ doas ufw enable
 $ doas rc-update add ufw default
 $ doas ufw allow out 443
 $ doas ufw default deny incoming
