@@ -181,6 +181,8 @@ And all I need to code: Packages: 637 (apk)
 
 Or full plasma install: 3.59 GiB - 6.3.6
 
+(With VSCodium and some more stuff) on edge/testing: 4.76 GiB - 6.5.3
+
 </details>
 
 
