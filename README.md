@@ -166,8 +166,14 @@ Also `doas apk add gnome-2048` because always need that at hand.
 
 ### FOR NERDS
 
-[3.399605] Mounting root: ok. (Grub) 
+#### Boot time
+
+[3.399605] Mounting root: ok. (Grub)
+
 [3.100839] Mounting root: ok. (Refind)
+
+
+#### Reference sizes
 
 VM Final size (using linux-virt): 87.5 MiB
 
@@ -177,12 +183,18 @@ With hardware drivers + mesa: 800 MiB
 
 Full Intel HW + Full MESA: 1.1GB
 
+#### Sway
+
 With 3 github pages open on FF and Sway: Memory: 2.09 GiB / 15.29 GiB (13.7%)
+
 At idle: 664.33 MiB  / 15.29 GiB (4.2%)
 
 And all I need to code: Packages: 637 (apk)
 
+#### Plasma
+
 Or full plasma install: 3.59 GiB (Disk Used Ext4) - 6.3.6
+
 At idle 1.30 GiB / 15.29 GiB (8.5%)
 
 (With VSCodium and some more stuff) on edge/testing: 4.76 GiB (Disk Used Ext4) - 6.5.3
