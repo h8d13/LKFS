@@ -117,7 +117,8 @@ I've also included a Sway setup script where you can simple `su <user>` then go 
 <details>
 <summary><b>More stuff</b></summary>
 
-- Keymaps
+#### Keymaps
+
 If you ran `setup-alpine` it should have prompted you. Otherwise you can use `loadkeys fr`
 
 For sddm:
@@ -126,7 +127,7 @@ export KB_LAYOUT=$(ls /etc/keymap/*.bmap.gz 2>/dev/null | head -1 | sed 's|/etc/
 echo "XKB_DEFAULT_LAYOUT=$KB_LAYOUT" | doas tee -a /etc/environment
 ```
 
-- Setup a firewall:
+#### Firewall:
 
 ```
 $ doas ufw enable
