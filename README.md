@@ -60,7 +60,7 @@ Transform this chroot environment into a fully bootable Alpine Linux UEFI system
 
 See `ALPM-FS.conf` **BEFORE** proceeding. [Here](./ALPM-FS.conf)
 
-### Create Bootable Disk Image
+### Create the image
 
 ```bash
 sudo ./utils/create_boot_img.sh alpine-boot.img 2G
@@ -127,7 +127,7 @@ export KB_LAYOUT=$(ls /etc/keymap/*.bmap.gz 2>/dev/null | head -1 | sed 's|/etc/
 echo "XKB_DEFAULT_LAYOUT=$KB_LAYOUT" | doas tee -a /etc/environment
 ```
 
-#### Firewall:
+#### Firewall
 
 ```
 $ doas ufw enable
