@@ -115,9 +115,19 @@ Plasma works beautifully with sound of the box!
 I've also included a Sway setup script where you can simple `su <user>` then go to `doas ./root/mods/sway_user.sh`. Probably also recommended to install something like SDDM or lightdm or similar (a firewall, etc). But I left it without and you can run `sway` as your user to start it.
 
 <details>
-<summary><b>FIREWALLS</b></summary>
+<summary><b>More stuff</b></summary>
+
+- Keymaps
+If you ran `setup-alpine` it should have prompted you. Otherwise you can use `loadkeys fr`
+
+For sddm:
+```
+export KB_LAYOUT=$(ls /etc/keymap/*.bmap.gz 2>/dev/null | head -1 | sed 's|/etc/keymap/||' | sed 's|\.bmap\.gz$||')
+echo "XKB_DEFAULT_LAYOUT=$KB_LAYOUT" | doas tee -a /etc/environment
+```
 
 - Setup a firewall:
+
 ```
 $ doas rc-update add ufw default
 $ doas ufw allow out 443
@@ -132,6 +142,7 @@ $ doas ufw allow out 53
 $ doas ufw allow out 80
 $ doas ufw default deny incoming
 ```
+
 </details>
 
 
