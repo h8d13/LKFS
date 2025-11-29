@@ -147,11 +147,11 @@ ${ALPINE_MIRROR}/${ALPINE_VERSION}/main
 ${ALPINE_MIRROR}/${ALPINE_VERSION}/community
 REPOS
 
-# Add testing repo if enabled
+# Add testing repo if enabled (as tagged repository)
 # Testing repository only exists in edge, not in versioned releases
 if [ "$ENABLE_TESTING" = "yes" ]; then
-    echo "[*] Enabling /edge/testing repos experimental..."
-    echo "${ALPINE_MIRROR}/edge/testing" >> /mnt/alpine-img/etc/apk/repositories
+    echo "[*] Enabling @testing tagged repo from /edge/testing (experimental)..."
+    echo "@testing ${ALPINE_MIRROR}/edge/testing" >> /mnt/alpine-img/etc/apk/repositories
 fi
 
 # Validate bootloader configuration
@@ -182,7 +182,7 @@ apk update
 apk add $CORE_PACKAGES
 [ -n "$CORE_PACKAGES2" ] && apk add $CORE_PACKAGES2
 apk add $BOOT_PACKAGES
-[ "$BOOTLOADER" = "refind" ] && apk add --repository ${ALPINE_MIRROR}/edge/testing refind
+[ "$BOOTLOADER" = "refind" ] && apk add refind@testing
 apk add $SYSTEM_PACKAGES
 apk add $EXTRA_PACKAGES
 [ "$WIFI_NEEDED" = "yes" ] && [ -n "$WIFI_PACKAGES" ] && apk add $WIFI_PACKAGES
@@ -413,9 +413,6 @@ umount /mnt/alpine-img/dev/pts
 umount /mnt/alpine-img/dev
 umount /mnt/alpine-img/sys
 umount /mnt/alpine-img/proc
-
-echo "[*] Removing symlink..."
-rm /mnt/alpine-img/boot
 
 echo "[*] Unmouting full..."
 umount /mnt/alpine-img
