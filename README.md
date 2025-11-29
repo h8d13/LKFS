@@ -148,7 +148,7 @@ $ doas ufw default deny incoming
 
 
 >[!NOTE]
-> More stuffs can be found in [.github](./.github) where I documented some of the tricks/ressources I've used.
+> Also can be found in [.github](./.github) where I documented some of the tricks/ressources I've used.
 
 ```
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
