@@ -153,7 +153,8 @@ Also `doas apk add gnome-2048` because always need that at hand.
 
 ### FOR NERDS
 
-[3.399605] Mounting root: ok.
+[3.399605] Mounting root: ok. (Grub) 
+[3.100839] Mounting root: ok. (Refind)
 
 VM Final size (using linux-virt): 87.5 MiB
 
