@@ -114,8 +114,25 @@ Plasma works beautifully with sound of the box!
 
 I've also included a Sway setup script where you can simple `su <user>` then go to `doas ./root/mods/sway_user.sh`. Probably also recommended to install something like SDDM or lightdm or similar (a firewall, etc). But I left it without and you can run `sway` as your user to start it.
 
-Here is old project of mine which aimed to set-up some stuff 
-https://github.com/h8d13/k2-alpine
+<summary><b>FIREWALLS</b></summary>
+
+- Setup a firewall:
+```
+$ doas rc-update add ufw default
+$ doas ufw allow out 443
+$ doas ufw default deny incoming
+```
+Or you can be more restrictive/specific:
+```
+$ doas ufw default deny outgoing
+$ doas ufw allow out 443
+$ doas ufw allow out 22
+$ doas ufw allow out 53
+$ doas ufw allow out 80
+$ doas ufw default deny incoming
+```
+</details>
+
 
 >[!NOTE]
 > More stuffs can be found in [.github](./.github) where I documented some of the tricks/ressources I've used.
@@ -147,6 +164,8 @@ Full Intel HW + Full MESA: 1.1GB
 
 With 3 github pages open on FF and Sway: Memory: 2.09 GiB / 15.29 GiB (14%)
 And all I need to code: Packages: 637 (apk)
+
+Or full plasma install: 3.59 GiB - 6.3.6
 
 </details>
 
