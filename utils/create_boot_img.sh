@@ -157,7 +157,7 @@ if [ "$ENABLE_TESTING" = "yes" ]; then
     echo "@testing ${ALPINE_MIRROR}/edge/testing" >> /mnt/alpine-img/etc/apk/repositories
 fi
 
-# Validate bootloader configuration
+# Validate bootloader configuration and install packages
 if [ "$BOOTLOADER" = "refind" ]; then
     if [ "$ENABLE_TESTING" != "yes" ]; then
         echo "Error: rEFInd bootloader requires ENABLE_TESTING=\"yes\""
@@ -182,6 +182,8 @@ echo "[*] Running main chroot script..."
 chroot /mnt/alpine-img /bin/sh <<CHROOT_CMD
 . /root/.profile 2>/dev/null || true
 apk update
+[ -n "$HW_GROUP_INTEL" ] && apk add intel-ucode
+[ -n "$HW_GROUP_AMD" ] && apk add amd-ucode
 apk add $CORE_PACKAGES
 [ -n "$CORE_PACKAGES2" ] && apk add $CORE_PACKAGES2
 apk add $BOOT_PACKAGES
@@ -190,7 +192,8 @@ apk add $SYSTEM_PACKAGES
 apk add $EXTRA_PACKAGES
 [ "$WIFI_NEEDED" = "yes" ] && [ -n "$WIFI_PACKAGES" ] && apk add $WIFI_PACKAGES
 [ -n "$NTH_PACKAGES" ] && apk add $NTH_PACKAGES
-[ -n "$HW_GROUP" ] && apk add $HW_GROUP
+[ -n "$HW_GROUP_INTEL" ] && apk add $HW_GROUP_INTEL
+[ -n "$HW_GROUP_AMD" ] && apk add $HW_GROUP_AMD
 [ -n "$GP_GROUP_MESA" ] && apk add $GP_GROUP_MESA
 CHROOT_CMD
 
@@ -268,36 +271,6 @@ LOCALECONF
 
 CHROOT_CMD
 
-# Install microcode based on configured hardware groups
-UCODE_PKG=""
-if [ -n "$HW_GROUP_INTEL" ]; then
-    echo "[*] Intel hardware detected - installing intel-ucode..."
-    UCODE_PKG="intel-ucode"
-    chroot /mnt/alpine-img /bin/sh <<UCODE_CMD
-. /root/.profile 2>/dev/null || true
-apk add intel-ucode
-UCODE_CMD
-elif [ -n "$HW_GROUP_AMD" ]; then
-    echo "[*] AMD hardware detected - installing amd-ucode..."
-    UCODE_PKG="amd-ucode"
-    chroot /mnt/alpine-img /bin/sh <<UCODE_CMD
-. /root/.profile 2>/dev/null || true
-apk add amd-ucode
-UCODE_CMD
-fi
-
-# Check if microcode image exists after installation
-UCODE_FILE=""
-if [ -n "$UCODE_PKG" ]; then
-    UCODE_IMG=$(find /mnt/alpine-img/efi -name '*-ucode.img' -type f 2>/dev/null | head -1)
-    if [ -n "$UCODE_IMG" ]; then
-        UCODE_FILE="/$(basename "$UCODE_IMG")"
-        echo "[*] Found microcode: $UCODE_FILE"
-    else
-        echo "[!] Warning: $UCODE_PKG package installed but no ucode image found"
-    fi
-fi
-
 # Get partition UUID (needed for both bootloaders)
 PART_UUID=$(blkid -s UUID -o value "$PART_DEV")
 
@@ -340,6 +313,16 @@ INITRAMFS_FILE=$(basename "$INITRAMFS_FILE")
 echo "[*] Detected kernel: $KERNEL_FILE"
 echo "[*] Detected initramfs: $INITRAMFS_FILE"
 
+# Check if microcode image exists
+UCODE_FILE=""
+UCODE_IMG=$(find /mnt/alpine-img/efi -name '*-ucode.img' -type f 2>/dev/null | head -1)
+if [ -n "$UCODE_IMG" ]; then
+    UCODE_FILE="/$(basename "$UCODE_IMG")"
+    echo "[*] Found microcode: $UCODE_FILE"
+else
+    echo "[*] No microcode image found (skipping)"
+fi
+
 # Install and configure bootloader based on selection
 if [ "$BOOTLOADER" = "grub" ]; then
     echo "[*] Installing GRUB bootloader..."
@@ -377,6 +360,7 @@ menuentry "$GRUB_MENUENTRY" {
 }
 GRUBCFG
     fi
+
 
 elif [ "$BOOTLOADER" = "refind" ]; then
     echo "[*] Installing rEFInd bootloader..."
@@ -422,9 +406,9 @@ use_graphics_for linux
 
 menuentry "$REFIND_MENUENTRY" {
     icon     /EFI/refind/icons/os_linux.png
-    volume   $PART_UUID
     loader   /$KERNEL_FILE
-    initrd   $UCODE_FILE /$INITRAMFS_FILE
+    initrd   $UCODE_FILE
+    initrd   /$INITRAMFS_FILE
     options  "root=UUID=$PART_UUID $KERNEL_CMDLINE"
 }
 REFINDCFG
@@ -436,7 +420,6 @@ use_graphics_for linux
 
 menuentry "$REFIND_MENUENTRY" {
     icon     /EFI/refind/icons/os_linux.png
-    volume   $PART_UUID
     loader   /$KERNEL_FILE
     initrd   /$INITRAMFS_FILE
     options  "root=UUID=$PART_UUID $KERNEL_CMDLINE"
@@ -451,7 +434,6 @@ REFINDCFG
 "Boot to single-user mode" "root=UUID=$PART_UUID $KERNEL_CMDLINE single"
 "Boot with minimal options" "root=UUID=$PART_UUID ro"
 REFINDLINUX
-
 fi
 
 echo "[*] Unmouting EFI..."
