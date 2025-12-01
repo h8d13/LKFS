@@ -1,0 +1,110 @@
+#!/usr/bin/env python3
+"""
+Kernel Compilation Module
+Handles building the Linux kernel
+"""
+
+import os
+import subprocess
+import multiprocessing
+from pathlib import Path
+
+
+class KernelCompiler:
+    def __init__(self, kernel_dir, quiet=False):
+        self.kernel_dir = Path(kernel_dir)
+        self.num_jobs = multiprocessing.cpu_count()
+        self.quiet = quiet
+
+    def clean(self):
+        """Clean build artifacts"""
+        print("Cleaning build artifacts")
+        stdout_arg = subprocess.DEVNULL if self.quiet else None
+        try:
+            subprocess.run(
+                ["make", "clean"],
+                cwd=self.kernel_dir,
+                check=True,
+                stdout=stdout_arg
+            )
+            print("Clean complete")
+            return True
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"Clean failed: {e}")
+
+    def mrproper(self):
+        """Deep clean including config"""
+        print("Performing mrproper (deep clean)")
+        stdout_arg = subprocess.DEVNULL if self.quiet else None
+        try:
+            subprocess.run(
+                ["make", "mrproper"],
+                cwd=self.kernel_dir,
+                check=True,
+                stdout=stdout_arg
+            )
+            print("Mrproper complete")
+            return True
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"Mrproper failed: {e}")
+
+    def build_kernel(self, jobs=None):
+        """Compile the kernel"""
+        if jobs is None:
+            jobs = self.num_jobs
+
+        print(f"Building kernel with {jobs} parallel jobs")
+        try:
+            subprocess.run(
+                ["make", f"-j{jobs}"],
+                cwd=self.kernel_dir,
+                check=True
+            )
+            print("Kernel build complete")
+            return True
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"Kernel build failed: {e}")
+
+    def build_modules(self, jobs=None):
+        """Compile kernel modules"""
+        if jobs is None:
+            jobs = self.num_jobs
+
+        print(f"Building modules with {jobs} parallel jobs")
+        try:
+            subprocess.run(
+                ["make", "modules", f"-j{jobs}"],
+                cwd=self.kernel_dir,
+                check=True
+            )
+            print("Modules build complete")
+            return True
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"Modules build failed: {e}")
+
+    def build_all(self, jobs=None):
+        """Build kernel and modules together"""
+        if jobs is None or jobs == 'auto':
+            jobs = self.num_jobs
+        else:
+            jobs = int(jobs)
+
+        print(f"Building kernel and modules with {jobs} parallel jobs")
+
+        stdout_arg = subprocess.DEVNULL if self.quiet else None
+        stderr_arg = subprocess.DEVNULL if self.quiet else None
+
+        try:
+            # Build in the kernel directory, not as a subdirectory
+            subprocess.run(
+                ["make", f"-j{jobs}", "ARCH=x86_64"],
+                cwd=self.kernel_dir,
+                check=True,
+                stdout=stdout_arg,
+                stderr=stderr_arg,
+                env=dict(os.environ, KBUILD_BUILD_USER="builder")
+            )
+            print("Build complete")
+            return True
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"Build failed: {e}")

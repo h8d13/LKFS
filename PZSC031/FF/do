@@ -1,0 +1,151 @@
+#!/usr/bin/env python
+#############
+import sys
+
+#<>#
+from com.ahead import src_file_
+
+why_name = "why"
+why = src_file_(why_name, where="./com")
+
+download_mod = src_file_("download", where="./com")
+configure_mod = src_file_("configure", where="./com")
+compile_mod = src_file_("compile", where="./com")
+
+#############
+error = None
+error_code = 0
+
+#############
+def _handler(code):
+    global error
+    msgs = why._get_mess()
+    if code == 0:
+        error = False
+        print(msgs[0])
+        return 0
+    elif code in range(1, len(msgs)):
+        error = True
+        print(msgs[code])
+        return code
+    else:
+        error = True
+        print(msgs[1])
+        return 1
+
+def build_kernel(version=None, config_type="default", custom_config=None, jobs=None, work_dir="/tmp/kernel-build", quiet=False, cleanup_on_fail=True):
+    """Main kernel build workflow"""
+    global error_code
+    kernel_dir = None
+    downloader = None
+
+    try:
+        print("=== Kernel Build Process ===")
+
+        # Download
+        print("\n[1/3] Downloading kernel")
+        downloader = download_mod.KernelDownloader(work_dir=work_dir)
+        tarball = downloader.download_kernel(version)
+        kernel_dir = downloader.extract_kernel(tarball)
+
+    except Exception as e:
+        print(f"Download error: {e}")
+        error_code = 2
+        if cleanup_on_fail and kernel_dir and downloader:
+            downloader.cleanup(kernel_dir)
+        return None
+
+    try:
+        # Configure
+        print("\n[2/3] Configuring kernel")
+        configurator = configure_mod.KernelConfigurator(kernel_dir, quiet=quiet)
+
+        if config_type == "default":
+            configurator.use_default_config()
+        elif config_type == "current":
+            configurator.use_current_config()
+        elif config_type == "custom":
+            if not custom_config:
+                raise Exception("custom_config path required")
+            configurator.use_custom_config(custom_config)
+
+    except Exception as e:
+        print(f"Configuration error: {e}")
+        error_code = 3
+        if cleanup_on_fail and kernel_dir and downloader:
+            downloader.cleanup(kernel_dir)
+        return None
+
+    try:
+        # Compile
+        print("\n[3/3] Compiling kernel")
+        compiler = compile_mod.KernelCompiler(kernel_dir, quiet=quiet)
+        compiler.build_all(jobs)
+
+        print("\n=== Build Complete ===")
+        print(f"Kernel directory: {kernel_dir}")
+        print(f"Kernel image: {kernel_dir}/arch/x86/boot/bzImage")
+
+        error_code = 0
+        return kernel_dir
+
+    except Exception as e:
+        print(f"Compilation error: {e}")
+        error_code = 4
+        if cleanup_on_fail and kernel_dir and downloader:
+            downloader.cleanup(kernel_dir)
+        return None
+
+def read_config():
+    """Read configuration from kernel.conf"""
+    import configparser
+    config = configparser.ConfigParser()
+
+    try:
+        config.read('kernel.conf')
+        version = config.get('kernel', 'version', fallback='').strip() or None
+        config_type = config.get('kernel', 'config_type', fallback='default').strip()
+        custom_config = config.get('kernel', 'custom_config', fallback='').strip() or None
+        jobs_str = config.get('build', 'jobs', fallback='auto').strip()
+        jobs = jobs_str if jobs_str in ['', 'auto'] else int(jobs_str)
+        work_dir = config.get('build', 'work_dir', fallback='/tmp/kernel-build').strip()
+        quiet_str = config.get('build', 'quiet', fallback='no').strip().lower()
+        quiet = quiet_str in ['yes', 'true', '1', 'on']
+
+        return {
+            'version': version,
+            'config_type': config_type,
+            'custom_config': custom_config,
+            'jobs': jobs,
+            'work_dir': work_dir,
+            'quiet': quiet
+        }
+    except Exception:
+        # If config file doesn't exist or is invalid, use defaults
+        return {
+            'version': None,
+            'config_type': 'default',
+            'custom_config': None,
+            'jobs': 'auto',
+            'work_dir': '/tmp/kernel-build',
+            'quiet': False
+        }
+
+if __name__ == "__main__":
+    cfg = read_config()
+
+    kernel_dir = build_kernel(
+        version=cfg['version'],
+        config_type=cfg['config_type'],
+        custom_config=cfg['custom_config'],
+        jobs=cfg['jobs'],
+        work_dir=cfg['work_dir'],
+        quiet=cfg['quiet']
+    )
+
+    exit_code = _handler(error_code)
+    if error:
+        print(True)
+    else:
+        print(False)
+    sys.exit(exit_code)

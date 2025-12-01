@@ -1,0 +1,12 @@
+#!/bin/env python
+##############
+def _get_mess():
+    messages = [
+    'Kernel build completed successfully.',
+    'Kernel build failed.',
+    'Failed to download kernel sources',
+    'Failed to configure kernel',
+    'Failed to compile kernel',
+    'Missing dependencies on host system'
+    ]
+    return messages

@@ -1,6 +1,9 @@
 #!/bin/bash
 #HL#utils/create-bootable-image.sh#
-# Create a bootable Alpine disk image (for VMs/testing)
+# Create a bootable Alpine disk image
+
+# ./utils/create_boot_img.sh [image_file] [image_size] [config_file]
+
 set -e
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -12,11 +15,11 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CHROOT="$SCRIPT_DIR/../alpinestein"
 IMAGE_FILE="${1:-alpine-boot.img}"
 IMAGE_SIZE="${2:-2G}"
+CONFIG_FILE="${3:-$SCRIPT_DIR/../ALPM-FS.conf}"
 
 # Source configuration file
-CONFIG_FILE="$SCRIPT_DIR/../ALPM-FS.conf"
 if [ -f "$CONFIG_FILE" ]; then
-    echo "[+] Loading configuration from ALPM-FS.conf"
+    echo "[+] Loading configuration from $CONFIG_FILE"
     # shellcheck source=../ALPM-FS.conf
     # shellcheck disable=SC1091
     . "$CONFIG_FILE"
@@ -187,7 +190,7 @@ apk add $SYSTEM_PACKAGES
 apk add $EXTRA_PACKAGES
 [ "$WIFI_NEEDED" = "yes" ] && [ -n "$WIFI_PACKAGES" ] && apk add $WIFI_PACKAGES
 [ -n "$NTH_PACKAGES" ] && apk add $NTH_PACKAGES
-[ -n "$HW_GROUP_INTEL" ] && apk add $HW_GROUP_INTEL
+[ -n "$HW_GROUP" ] && apk add $HW_GROUP
 [ -n "$GP_GROUP_MESA" ] && apk add $GP_GROUP_MESA
 CHROOT_CMD
 
@@ -265,6 +268,36 @@ LOCALECONF
 
 CHROOT_CMD
 
+# Install microcode based on configured hardware groups
+UCODE_PKG=""
+if [ -n "$HW_GROUP_INTEL" ]; then
+    echo "[*] Intel hardware detected - installing intel-ucode..."
+    UCODE_PKG="intel-ucode"
+    chroot /mnt/alpine-img /bin/sh <<UCODE_CMD
+. /root/.profile 2>/dev/null || true
+apk add intel-ucode
+UCODE_CMD
+elif [ -n "$HW_GROUP_AMD" ]; then
+    echo "[*] AMD hardware detected - installing amd-ucode..."
+    UCODE_PKG="amd-ucode"
+    chroot /mnt/alpine-img /bin/sh <<UCODE_CMD
+. /root/.profile 2>/dev/null || true
+apk add amd-ucode
+UCODE_CMD
+fi
+
+# Check if microcode image exists after installation
+UCODE_FILE=""
+if [ -n "$UCODE_PKG" ]; then
+    UCODE_IMG=$(find /mnt/alpine-img/efi -name '*-ucode.img' -type f 2>/dev/null | head -1)
+    if [ -n "$UCODE_IMG" ]; then
+        UCODE_FILE="/$(basename "$UCODE_IMG")"
+        echo "[*] Found microcode: $UCODE_FILE"
+    else
+        echo "[!] Warning: $UCODE_PKG package installed but no ucode image found"
+    fi
+fi
+
 # Get partition UUID (needed for both bootloaders)
 PART_UUID=$(blkid -s UUID -o value "$PART_DEV")
 
@@ -323,7 +356,18 @@ GRUB_INSTALL
 
     # Generate GRUB config
     echo "[*] Generating GRUB configuration..."
-    cat > /mnt/alpine-img/efi/grub/grub.cfg <<GRUBCFG
+    if [ -n "$UCODE_FILE" ]; then
+        cat > /mnt/alpine-img/efi/grub/grub.cfg <<GRUBCFG
+set timeout=$GRUB_TIMEOUT
+set default=0
+
+menuentry "$GRUB_MENUENTRY" {
+    linux /$KERNEL_FILE root=UUID=$PART_UUID $KERNEL_CMDLINE
+    initrd $UCODE_FILE /$INITRAMFS_FILE
+}
+GRUBCFG
+    else
+        cat > /mnt/alpine-img/efi/grub/grub.cfg <<GRUBCFG
 set timeout=$GRUB_TIMEOUT
 set default=0
 
@@ -332,6 +376,7 @@ menuentry "$GRUB_MENUENTRY" {
     initrd /$INITRAMFS_FILE
 }
 GRUBCFG
+    fi
 
 elif [ "$BOOTLOADER" = "refind" ]; then
     echo "[*] Installing rEFInd bootloader..."
@@ -369,7 +414,22 @@ elif [ "$BOOTLOADER" = "refind" ]; then
 
     # Generate rEFInd configuration
     echo "[*] Generating rEFInd configuration..."
-    cat > /mnt/alpine-img/efi/EFI/refind/refind.conf <<REFINDCFG
+    if [ -n "$UCODE_FILE" ]; then
+        cat > /mnt/alpine-img/efi/EFI/refind/refind.conf <<REFINDCFG
+timeout $REFIND_TIMEOUT
+resolution $REFIND_RESOLUTION
+use_graphics_for linux
+
+menuentry "$REFIND_MENUENTRY" {
+    icon     /EFI/refind/icons/os_linux.png
+    volume   $PART_UUID
+    loader   /$KERNEL_FILE
+    initrd   $UCODE_FILE /$INITRAMFS_FILE
+    options  "root=UUID=$PART_UUID $KERNEL_CMDLINE"
+}
+REFINDCFG
+    else
+        cat > /mnt/alpine-img/efi/EFI/refind/refind.conf <<REFINDCFG
 timeout $REFIND_TIMEOUT
 resolution $REFIND_RESOLUTION
 use_graphics_for linux
@@ -382,6 +442,7 @@ menuentry "$REFIND_MENUENTRY" {
     options  "root=UUID=$PART_UUID $KERNEL_CMDLINE"
 }
 REFINDCFG
+    fi
 
     # Create refind_linux.conf in the EFI partition root
     echo "[*] Creating refind_linux.conf..."
@@ -435,6 +496,6 @@ echo "Image: $IMAGE_FILE Size: $IMAGE_SIZE"
 echo "Boot mode: UEFI : $BOOTLOADER"
 echo "System hostname: $HOSTNAME"
 echo "Root password: $ROOT_PASSWORD"
-echo "You can now use 'sudo ./utils/write_img_usb.sh alpine-boot.img /dev/sdb' for example"
+echo "You can now use 'sudo ./utils/write_img_usb.sh $IMAGE_FILE /dev/sdb' for example"
 echo "Then resize part2 to take the full disk space."
 echo ""

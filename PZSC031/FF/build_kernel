@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+"""
+Main Kernel Build Orchestrator
+Coordinates download, configure, and compile modules
+"""
+
+import sys
+from com.ahead import src_file_
+
+download_mod = src_file_("download", where="./com")
+configure_mod = src_file_("configure", where="./com")
+compile_mod = src_file_("compile", where="./com")
+
+
+def build_kernel(version=None, config_type="default", custom_config=None, jobs=None):
+    """
+    Main build workflow
+
+    Args:
+        version: Kernel version to build (None = latest stable)
+        config_type: 'default', 'current', or 'custom'
+        custom_config: Path to custom .config file (if config_type='custom')
+        jobs: Number of parallel jobs (None = auto-detect CPU count)
+    """
+    print("=== Kernel Build Process ===")
+
+    # Download
+    print("\n[1/3] Downloading kernel")
+    downloader = download_mod.KernelDownloader()
+    tarball = downloader.download_kernel(version)
+    kernel_dir = downloader.extract_kernel(tarball)
+
+    # Configure
+    print("\n[2/3] Configuring kernel")
+    configurator = configure_mod.KernelConfigurator(kernel_dir)
+
+    if config_type == "default":
+        configurator.use_default_config()
+    elif config_type == "current":
+        configurator.use_current_config()
+    elif config_type == "custom":
+        if not custom_config:
+            raise Exception("custom_config path required for config_type='custom'")
+        configurator.use_custom_config(custom_config)
+    else:
+        raise Exception(f"Unknown config_type: {config_type}")
+
+    # Compile
+    print("\n[3/3] Compiling kernel")
+    compiler = compile_mod.KernelCompiler(kernel_dir)
+    compiler.build_all(jobs)
+
+    print("\n=== Build Complete ===")
+    print(f"Kernel directory: {kernel_dir}")
+    print(f"Kernel image: {kernel_dir}/arch/x86/boot/bzImage")
+
+    return kernel_dir
+
+
+if __name__ == "__main__":
+    try:
+        kernel_dir = build_kernel(
+            version=None,
+            config_type="default",
+            jobs=None
+        )
+        sys.exit(0)
+    except Exception as e:
+        print(f"ERROR: {e}")
+        sys.exit(1)

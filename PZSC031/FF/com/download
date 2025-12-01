@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+"""
+Kernel Download Module
+Handles downloading Linux kernel sources from kernel.org
+"""
+
+import subprocess
+import urllib.request
+import json
+from pathlib import Path
+import shutil
+
+
+class KernelDownloader:
+    def __init__(self, work_dir="./build"):
+        self.work_dir = Path(work_dir)
+        self.work_dir.mkdir(parents=True, exist_ok=True)
+        self.kernel_org_api = "https://www.kernel.org/releases.json"
+
+    def get_latest_stable_version(self):
+        """Fetch latest stable kernel version from kernel.org"""
+        try:
+            with urllib.request.urlopen(self.kernel_org_api) as response:
+                data = json.loads(response.read())
+                for release in data.get('releases', []):
+                    if release.get('moniker') == 'stable':
+                        return release.get('version')
+        except Exception as e:
+            raise Exception(f"Failed to fetch kernel version: {e}")
+        return None
+
+    def download_kernel(self, version=None):
+        """Download kernel tarball"""
+        if version is None:
+            version = self.get_latest_stable_version()
+
+        if version is None:
+            raise Exception("Could not determine kernel version")
+
+        # Handle version string
+        version = str(version).strip()
+        major_version = version.split('.')[0]
+        tarball = f"linux-{version}.tar.xz"
+        url = f"https://cdn.kernel.org/pub/linux/kernel/v{major_version}.x/{tarball}"
+        dest = self.work_dir / tarball
+
+        if dest.exists():
+            print(f"Kernel {version} already downloaded at {dest}")
+            return str(dest)
+
+        print(f"Downloading kernel {version} from {url}")
+        temp_dest = dest.with_suffix('.tmp')
+        try:
+            urllib.request.urlretrieve(url, temp_dest)
+            temp_dest.rename(dest)
+            print(f"Downloaded to {dest}")
+            return str(dest)
+        except Exception as e:
+            # Clean up partial download
+            if temp_dest.exists():
+                temp_dest.unlink()
+            raise Exception(f"Download failed: {e}")
+
+    def extract_kernel(self, tarball_path):
+        """Extract kernel tarball"""
+        tarball = Path(tarball_path)
+        extract_dir = self.work_dir / tarball.stem.replace('.tar', '')
+
+        if extract_dir.exists():
+            print(f"Kernel already extracted at {extract_dir}")
+            return str(extract_dir)
+
+        print(f"Extracting {tarball} to {self.work_dir}")
+        try:
+            subprocess.run(
+                ["tar", "xf", str(tarball), "-C", str(self.work_dir)],
+                check=True
+            )
+            print(f"Extracted to {extract_dir}")
+            return str(extract_dir)
+        except subprocess.CalledProcessError as e:
+            # Clean up partial extraction
+            if extract_dir.exists():
+                shutil.rmtree(extract_dir)
+            raise Exception(f"Extraction failed: {e}")
+
+    def cleanup(self, kernel_dir):
+        """Remove kernel source directory"""
+        kernel_path = Path(kernel_dir)
+        if kernel_path.exists():
+            print(f"Cleaning up {kernel_dir}")
+            shutil.rmtree(kernel_path)

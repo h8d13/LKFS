@@ -1,0 +1,47 @@
+# Host System Dependencies for Linux Kernel Compilation
+# Install these packages before running build_kernel
+
+## Build Essentials
+gcc
+g++
+make
+binutils
+bison
+flex
+
+## Kernel Build Tools
+bc
+libelf-dev
+libssl-dev
+libncurses-dev
+
+## Compression Tools
+xz-utils
+gzip
+bzip2
+
+## Standard Utilities
+cpio
+wget
+curl
+tar
+perl
+python3
+
+## Optional but Recommended
+ccache          # Speed up recompilation
+pahole          # For BTF support
+
+# Distribution-specific install commands:
+
+# Debian/Ubuntu:
+# apt-get install build-essential bc bison flex libssl-dev libelf-dev libncurses-dev xz-utils wget curl tar python3 ccache dwarves
+
+# Arch Linux:
+# pacman -S bc bison flex openssl libelf ncurses xz wget curl tar python ccache pahole
+
+# Alpine Linux:
+# apk add build-base bc bison flex openssl-dev elfutils-dev ncurses-dev xz wget curl tar python3 ccache pahole
+
+# Fedora/RHEL:
+# dnf install gcc make bison flex openssl-devel elfutils-libelf-devel ncurses-devel bc xz wget curl tar python3 ccache dwarves
