@@ -344,7 +344,7 @@ GRUB_INSTALL
 set timeout=$GRUB_TIMEOUT
 set default=0
 
-menuentry "$GRUB_MENUENTRY" {
+menuentry "$MENUENTRY" {
     linux /$KERNEL_FILE root=UUID=$PART_UUID $KERNEL_CMDLINE
     initrd $UCODE_FILE /$INITRAMFS_FILE
 }
@@ -354,7 +354,7 @@ GRUBCFG
 set timeout=$GRUB_TIMEOUT
 set default=0
 
-menuentry "$GRUB_MENUENTRY" {
+menuentry "$MENUENTRY" {
     linux /$KERNEL_FILE root=UUID=$PART_UUID $KERNEL_CMDLINE
     initrd /$INITRAMFS_FILE
 }
@@ -404,7 +404,7 @@ timeout $REFIND_TIMEOUT
 resolution $REFIND_RESOLUTION
 use_graphics_for linux
 
-menuentry "$REFIND_MENUENTRY" {
+menuentry "$MENUENTRY" {
     icon     /EFI/refind/icons/os_linux.png
     loader   /$KERNEL_FILE
     initrd   $UCODE_FILE
@@ -418,7 +418,7 @@ timeout $REFIND_TIMEOUT
 resolution $REFIND_RESOLUTION
 use_graphics_for linux
 
-menuentry "$REFIND_MENUENTRY" {
+menuentry "$MENUENTRY" {
     icon     /EFI/refind/icons/os_linux.png
     loader   /$KERNEL_FILE
     initrd   /$INITRAMFS_FILE
