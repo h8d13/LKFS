@@ -68,6 +68,10 @@ def build_kernel(version=None, config_type="default", custom_config=None, jobs=N
             if not custom_config:
                 raise Exception("custom_config path required")
             configurator.use_custom_config(custom_config)
+        elif config_type == "fragment":
+            if not custom_config:
+                raise Exception("custom_config path required for fragment")
+            configurator.use_fragment_config(custom_config)
 
     except Exception as e:
         print(f"Configuration error: {e}")

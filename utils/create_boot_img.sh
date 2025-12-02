@@ -179,12 +179,22 @@ fi
 
 # Install packages and bootloader
 echo "[*] Running main chroot script..."
+
+# Skip Alpine kernel package if using custom kernel
+if [ "$USE_CUSTOM_KERNEL" = "yes" ]; then
+    echo "[*] Skipping $KERNEL_FLAVOR package (using custom kernel)"
+    # Remove kernel package from CORE_PACKAGES but keep the rest
+    INSTALL_CORE_PACKAGES="${CORE_PACKAGES//$KERNEL_FLAVOR/}"
+else
+    INSTALL_CORE_PACKAGES="$CORE_PACKAGES"
+fi
+
 chroot /mnt/alpine-img /bin/sh <<CHROOT_CMD
 . /root/.profile 2>/dev/null || true
 apk update
 [ -n "$HW_GROUP_INTEL" ] && apk add intel-ucode
 [ -n "$HW_GROUP_AMD" ] && apk add amd-ucode
-apk add $CORE_PACKAGES
+[ -n "$INSTALL_CORE_PACKAGES" ] && apk add $INSTALL_CORE_PACKAGES
 [ -n "$CORE_PACKAGES2" ] && apk add $CORE_PACKAGES2
 apk add $BOOT_PACKAGES
 [ "$BOOTLOADER" = "refind" ] && apk add refind@testing
@@ -196,6 +206,46 @@ apk add $EXTRA_PACKAGES
 [ -n "$HW_GROUP_AMD" ] && apk add $HW_GROUP_AMD
 [ -n "$GP_GROUP_MESA" ] && apk add $GP_GROUP_MESA
 CHROOT_CMD
+
+# Install custom kernel if enabled
+if [ "$USE_CUSTOM_KERNEL" = "yes" ]; then
+    echo "[*] Installing custom kernel..."
+
+    # Find custom kernel build directory
+    CUSTOM_KERNEL_DIR=$(find "$CUSTOM_KERNEL_BUILD_DIR" -maxdepth 1 -type d -name "linux-*" 2>/dev/null | head -1)
+
+    if [ -z "$CUSTOM_KERNEL_DIR" ] || [ ! -d "$CUSTOM_KERNEL_DIR" ]; then
+        echo "Error: Custom kernel build not found in $CUSTOM_KERNEL_BUILD_DIR"
+        echo "Please build the kernel first: cd PZSC031/FF && ./do"
+        exit 1
+    fi
+
+    CUSTOM_BZIMAGE="$CUSTOM_KERNEL_DIR/arch/x86/boot/bzImage"
+    if [ ! -f "$CUSTOM_BZIMAGE" ]; then
+        echo "Error: Custom kernel bzImage not found at $CUSTOM_BZIMAGE"
+        exit 1
+    fi
+
+    # Get kernel version
+    CUSTOM_KVER=$(make -C "$CUSTOM_KERNEL_DIR" -s kernelrelease 2>/dev/null)
+    echo "[*] Custom kernel version: $CUSTOM_KVER"
+
+    # Copy kernel to EFI partition
+    cp "$CUSTOM_BZIMAGE" "/mnt/alpine-img/efi/vmlinuz-$CUSTOM_KVER"
+
+    # Install kernel modules
+    echo "[*] Installing custom kernel modules..."
+    make -C "$CUSTOM_KERNEL_DIR" INSTALL_MOD_PATH="/mnt/alpine-img" modules_install -j"$(nproc)"
+
+    # Generate initramfs for custom kernel
+    echo "[*] Generating initramfs for custom kernel..."
+    chroot /mnt/alpine-img /bin/sh <<CUSTOM_INITRAMFS
+. /root/.profile 2>/dev/null || true
+mkinitfs -o /efi/initramfs-$CUSTOM_KVER $CUSTOM_KVER
+CUSTOM_INITRAMFS
+
+    echo "[*] Custom kernel installed: vmlinuz-$CUSTOM_KVER"
+fi
 
 # Configure boot services (same for both modes)
 chroot /mnt/alpine-img /bin/sh <<CHROOT_CMD
@@ -249,6 +299,16 @@ cat > /etc/NetworkManager/NetworkManager.conf <<-NMCONF
 	wifi.scan-rand-mac-address=yes
 	wifi.backend=wpa_supplicant
 NMCONF
+
+# Configure network interfaces for auto DHCP
+cat > /etc/network/interfaces <<-NETCONF
+	auto lo
+	iface lo inet loopback
+
+	auto eth0
+	iface eth0 inet dhcp
+	    hostname \$HOSTNAME
+NETCONF
 
 # Create inittab
 cat > /etc/inittab <<'EOF'

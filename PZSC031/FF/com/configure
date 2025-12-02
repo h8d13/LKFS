@@ -67,14 +67,15 @@ class KernelConfigurator:
         raise Exception("Could not find current kernel config")
 
     def use_custom_config(self, config_path):
-        """Use a custom .config file"""
+        """Use a custom full .config file"""
         custom = Path(config_path)
         if not custom.exists():
             raise Exception(f"Config file not found: {config_path}")
 
-        print(f"Applying custom config from {config_path}")
+        print(f"Using config from {config_path}")
         shutil.copy(custom, self.config_file)
 
+        # Update for new kernel version
         stdout_arg = subprocess.DEVNULL if self.quiet else None
         subprocess.run(
             ["make", "olddefconfig"],
@@ -82,7 +83,42 @@ class KernelConfigurator:
             check=True,
             stdout=stdout_arg
         )
-        print("Custom config applied")
+        print("Config applied and updated for kernel version")
+        return True
+
+    def use_fragment_config(self, fragment_path):
+        """Use a config fragment on top of defconfig"""
+        fragment = Path(fragment_path)
+        if not fragment.exists():
+            raise Exception(f"Config fragment not found: {fragment_path}")
+
+        print(f"Applying config fragment from {fragment_path}")
+
+        # Start with defconfig
+        stdout_arg = subprocess.DEVNULL if self.quiet else None
+        subprocess.run(
+            ["make", "defconfig"],
+            cwd=self.kernel_dir,
+            check=True,
+            stdout=stdout_arg
+        )
+
+        # Append fragment
+        with open(fragment, 'r') as f:
+            fragment_lines = f.readlines()
+
+        with open(self.config_file, 'a') as f:
+            f.write("\n# Custom fragment additions\n")
+            f.writelines(fragment_lines)
+
+        # Resolve dependencies
+        subprocess.run(
+            ["make", "olddefconfig"],
+            cwd=self.kernel_dir,
+            check=True,
+            stdout=stdout_arg
+        )
+        print("Fragment applied to defconfig")
         return True
 
     def set_config_option(self, option, value):

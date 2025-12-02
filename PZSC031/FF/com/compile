@@ -96,13 +96,20 @@ class KernelCompiler:
 
         try:
             # Build in the kernel directory, not as a subdirectory
+            # Use absolute path and set KBUILD vars to avoid shell expansion issues
+            build_env = os.environ.copy()
+            build_env.update({
+                "KBUILD_BUILD_USER": "builder",
+                "PWD": str(self.kernel_dir.absolute())
+            })
+
             subprocess.run(
                 ["make", f"-j{jobs}", "ARCH=x86_64"],
-                cwd=self.kernel_dir,
+                cwd=str(self.kernel_dir.absolute()),
                 check=True,
                 stdout=stdout_arg,
                 stderr=stderr_arg,
-                env=dict(os.environ, KBUILD_BUILD_USER="builder")
+                env=build_env
             )
             print("Build complete")
             return True
