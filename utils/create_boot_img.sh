@@ -167,10 +167,9 @@ if [ "$BOOTLOADER" = "refind" ]; then
     fi
     echo "[*] Using rEFInd bootloader with with $KERNEL_FLAVOR"
     echo "[*] From /edge/testing repos experimental..."
-    BOOT_PACKAGES="efibootmgr"
 elif [ "$BOOTLOADER" = "grub" ]; then
     echo "[*] Using GRUB bootloader with $KERNEL_FLAVOR"
-    BOOT_PACKAGES="grub grub-efi efibootmgr"
+    BOOT_PACKAGES="grub grub-efi"
 else
     echo "Error: Invalid BOOTLOADER setting: $BOOTLOADER"
     echo "Valid options are: grub, refind"
