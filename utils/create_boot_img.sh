@@ -199,6 +199,7 @@ apk update
 apk add $BOOT_PACKAGES
 [ "$BOOTLOADER" = "refind" ] && apk add refind@testing
 apk add $SYSTEM_PACKAGES
+[ -n "$DEV_PACKAGES" ] && apk add $DEV_PACKAGES
 apk add $EXTRA_PACKAGES
 [ "$WIFI_NEEDED" = "yes" ] && [ -n "$WIFI_PACKAGES" ] && apk add $WIFI_PACKAGES
 [ -n "$NTH_PACKAGES" ] && apk add $NTH_PACKAGES

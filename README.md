@@ -67,7 +67,7 @@ See `ALPM-FS.conf` **BEFORE** proceeding. [Here](./ALPM-FS.conf)
 sudo ./utils/create_boot_img.sh alpine-boot.img 3G
 ```
 
-> 3GB - /efi part size
+> 3GB minus the /efi part size.
 
 This will:
 - Create a GPT/UEFI bootable disk image

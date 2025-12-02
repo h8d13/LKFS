@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #############
 import sys
+import signal
 
 #<>#
 from com.ahead import src_file_
@@ -15,6 +16,7 @@ compile_mod = src_file_("compile", where="./com")
 #############
 error = None
 error_code = 0
+cleanup_handler = None
 
 #############
 def _handler(code):
@@ -24,6 +26,10 @@ def _handler(code):
         error = False
         print(msgs[0])
         return 0
+    elif code == 5:
+        error = True
+        print("\nCanceled by user")
+        return 130  # Standard exit code for SIGINT
     elif code in range(1, len(msgs)):
         error = True
         print(msgs[code])
@@ -33,11 +39,30 @@ def _handler(code):
         print(msgs[1])
         return 1
 
+def signal_handler(sig, frame):
+    """Handle keyboard interrupt (Ctrl+C)"""
+    global error_code, cleanup_handler
+    print("\n\nInterrupted! Cleaning up...")
+    error_code = 5
+    if cleanup_handler:
+        try:
+            cleanup_handler()
+        except Exception as e:
+            print(f"Cleanup error: {e}")
+    sys.exit(_handler(error_code))
+
 def build_kernel(version=None, config_type="default", custom_config=None, jobs=None, work_dir="/tmp/kernel-build", quiet=False, cleanup_on_fail=True):
     """Main kernel build workflow"""
-    global error_code
+    global error_code, cleanup_handler
     kernel_dir = None
     downloader = None
+
+    def cleanup():
+        """Cleanup function for signal handler"""
+        if kernel_dir and downloader:
+            downloader.cleanup(kernel_dir)
+
+    cleanup_handler = cleanup
 
     try:
         print("=== Kernel Build Process ===")
@@ -136,6 +161,9 @@ def read_config():
         }
 
 if __name__ == "__main__":
+    # Register signal handler for Ctrl+C
+    signal.signal(signal.SIGINT, signal_handler)
+
     cfg = read_config()
 
     kernel_dir = build_kernel(

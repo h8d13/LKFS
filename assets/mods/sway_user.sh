@@ -23,7 +23,7 @@ cp /etc/sway/config /home/"$USER"/.config/sway/
 chown -R "$USER":"$USER" "/home/$USER/.config"
 
 # Add user to required groups
-echo "[MOD] Adding $USER to groups: input, video, seat..."
+echo "[MOD] Adding $USER to groups: input, video, seat, audio..."
 for group in input video seat audio; do
     # Create group if it doesn't exist
     if ! getent group "$group" >/dev/null 2>&1; then
@@ -32,4 +32,5 @@ for group in input video seat audio; do
     adduser "$USER" "$group"
 done
 
-echo "[MOD] User is member of groups: input, video, seat, audio"
+apk add alsaconf alsa-utils sof-firmware
+rc-update add alsa
