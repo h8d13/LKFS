@@ -12,7 +12,7 @@ See [KernelComp](./PZSC031/FF)
 
 Coolest part of this project: Initial auto download is **3.3mb.** (Alpine [MiniRoot](https://alpinelinux.org/downloads/) FS) Extracted is < ~9mb, goal being a kind of TUI-os + turn it into a fully working system for bare-metal.
 
-And for the whole process to take **less than 30 seconds.**.
+And for the whole process to take **less than 30 seconds.** (Unless you compile kernel ofc.)
 
 Download the repo and extract or `git clone https://github.com/h8d13/ALPM-FS`
 
