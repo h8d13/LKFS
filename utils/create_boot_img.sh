@@ -84,10 +84,10 @@ trap cleanup EXIT
 # Partition the disk (GPT/UEFI only)
 echo "[3/7] Creating GPT partition table..."
 EFI_END=$((EFI_SIZE + 1))
-parted -s "$LOOP_DEV" mklabel gpt
-parted -s "$LOOP_DEV" mkpart primary fat32 1MiB ${EFI_END}MiB
-parted -s "$LOOP_DEV" set 1 esp on
-parted -s "$LOOP_DEV" mkpart primary "${ROOT_FS_TYPE}" "${EFI_END}MiB" 100%
+parted -s --align=opt "$LOOP_DEV" mklabel gpt
+parted -s --align=opt "$LOOP_DEV" mkpart primary fat32 1MiB ${EFI_END}MiB
+parted -s --align=opt "$LOOP_DEV" set 1 esp on
+parted -s --align=opt "$LOOP_DEV" mkpart primary "${ROOT_FS_TYPE}" "${EFI_END}MiB" 100%
 
 # Reload partition table
 echo "[*] Reloading partition table..."
@@ -216,7 +216,7 @@ if [ "$USE_CUSTOM_KERNEL" = "yes" ]; then
 
     if [ -z "$CUSTOM_KERNEL_DIR" ] || [ ! -d "$CUSTOM_KERNEL_DIR" ]; then
         echo "Error: Custom kernel build not found in $CUSTOM_KERNEL_BUILD_DIR"
-        echo "Please build the kernel first: cd PZSC031/FF && ./do"
+        echo "Please build the kernel first: ./comp_kernel.sh"
         exit 1
     fi
 
